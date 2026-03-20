@@ -1,11 +1,11 @@
-package view;
+package com.knightforge.view;
 
 
-import model.ChessColor;
-import model.ChessComponent;
-import model.EmptySlotComponent;
-import model.RookChessComponent;
-import controller.ClickController;
+import com.knightforge.controller.ClickController;
+import com.knightforge.model.ChessColor;
+import com.knightforge.model.ChessComponent;
+import com.knightforge.model.EmptySlotComponent;
+import com.knightforge.model.RookChessComponent;
 
 import javax.swing.*;
 import java.awt.*;

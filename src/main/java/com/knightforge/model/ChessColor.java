@@ -1,4 +1,4 @@
-package model;
+package com.knightforge.model;
 
 import java.awt.*;
 

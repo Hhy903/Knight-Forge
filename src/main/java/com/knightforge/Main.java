@@ -1,4 +1,6 @@
-import view.ChessGameFrame;
+package com.knightforge;
+
+import com.knightforge.view.ChessGameFrame;
 
 import javax.swing.*;
 

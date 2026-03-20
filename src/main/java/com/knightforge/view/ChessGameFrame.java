@@ -1,6 +1,6 @@
-package view;
+package com.knightforge.view;
 
-import controller.GameController;
+import com.knightforge.controller.GameController;
 
 import javax.swing.*;
 import java.awt.*;

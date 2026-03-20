@@ -1,7 +1,7 @@
-package model;
+package com.knightforge.model;
 
-import view.ChessboardPoint;
-import controller.ClickController;
+import com.knightforge.controller.ClickController;
+import com.knightforge.view.ChessboardPoint;
 
 import java.awt.*;
 import java.io.IOException;

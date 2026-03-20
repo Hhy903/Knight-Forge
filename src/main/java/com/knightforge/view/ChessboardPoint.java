@@ -1,4 +1,4 @@
-package view;
+package com.knightforge.view;
 
 /**
  * Represents a square on the chessboard, such as (0, 0) or (7, 7).

@@ -1,6 +1,6 @@
-package controller;
+package com.knightforge.controller;
 
-import view.Chessboard;
+import com.knightforge.view.Chessboard;
 
 import java.io.IOException;
 import java.nio.file.Files;

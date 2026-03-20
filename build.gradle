@@ -21,7 +21,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'Main'
+    mainClass = 'com.knightforge.Main'
 }
 
 tasks.named('test') {

@@ -1,8 +1,8 @@
-package controller;
+package com.knightforge.controller;
 
 
-import model.ChessComponent;
-import view.Chessboard;
+import com.knightforge.model.ChessComponent;
+import com.knightforge.view.Chessboard;
 
 public class ClickController {
     private final Chessboard chessboard;
