@@ -25,4 +25,12 @@ public class GameController {
         return null;
     }
 
+    public void undo() {
+        chessboard.undo();
+    }
+
+    public void loadPromotionTestPosition() {
+        chessboard.loadPromotionTestPosition();
+    }
+
 }

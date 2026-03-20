@@ -86,7 +86,26 @@ public class GameSession {
         boardState.promotePawn(promotionPoint, pieceType);
         promotionPoint = null;
         phase = GamePhase.SELECTING_PIECE;
-        statusMessage = String.format("%s promoted to %s.", oppositeColor(boardState.getCurrentColor()).getName(), pieceType.name());
+        ChessColor sideToMove = boardState.getCurrentColor();
+        updateGameStatusAfterMove(sideToMove);
+        statusMessage = String.format("%s promoted to %s. %s",
+                oppositeColor(boardState.getCurrentColor()).getName(),
+                pieceType.name(),
+                statusMessage == null ? "" : statusMessage);
+        return true;
+    }
+
+    public boolean undo() {
+        Move undoneMove = boardState.undoLastMove();
+        if (undoneMove == null) {
+            statusMessage = "No move to undo.";
+            return false;
+        }
+
+        clearTransientState();
+        gameResult = null;
+        phase = GamePhase.SELECTING_PIECE;
+        statusMessage = boardState.getCurrentColor().getName() + " to move. Last move undone.";
         return true;
     }
 
@@ -115,6 +134,14 @@ public class GameSession {
         gameResult = null;
         phase = GamePhase.SELECTING_PIECE;
         statusMessage = "New game started.";
+    }
+
+    public void loadPromotionTestPosition() {
+        boardState.loadPromotionTestPosition();
+        clearTransientState();
+        gameResult = null;
+        phase = GamePhase.SELECTING_PIECE;
+        statusMessage = "Promotion test position loaded. Black to move.";
     }
 
     public void loadGame(List<String> chessData) {

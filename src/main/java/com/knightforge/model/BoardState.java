@@ -15,6 +15,7 @@ public class BoardState {
     private final ChessPiece[][] board = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
     private ChessColor currentColor = ChessColor.BLACK;
+    private ChessboardPoint enPassantTarget;
 
     public BoardState() {
         reset();
@@ -25,6 +26,18 @@ public class BoardState {
         setupInitialPieces();
         moveHistory.clear();
         currentColor = ChessColor.BLACK;
+        enPassantTarget = null;
+    }
+
+    public void loadPromotionTestPosition() {
+        clearBoard();
+        moveHistory.clear();
+        enPassantTarget = null;
+        currentColor = ChessColor.BLACK;
+
+        board[0][4] = new ChessPiece(PieceType.KING, ChessColor.BLACK);
+        board[7][4] = new ChessPiece(PieceType.KING, ChessColor.WHITE);
+        board[6][0] = new ChessPiece(PieceType.PAWN, ChessColor.BLACK);
     }
 
     public ChessPiece getPieceAt(ChessboardPoint point) {
@@ -45,6 +58,10 @@ public class BoardState {
 
     public List<Move> getMoveHistory() {
         return Collections.unmodifiableList(moveHistory);
+    }
+
+    public ChessboardPoint getEnPassantTarget() {
+        return enPassantTarget;
     }
 
     public boolean isCurrentPlayerPiece(ChessboardPoint point) {
@@ -161,12 +178,22 @@ public class BoardState {
         }
 
         ChessPiece movedPiece = getPieceAt(from);
+        ChessboardPoint previousEnPassantTarget = copyPoint(enPassantTarget);
         ChessPiece capturedPiece = getPieceAt(to);
+        ChessboardPoint capturedPiecePoint = copyPoint(to);
+
+        if (isEnPassantCapture(from, to, movedPiece)) {
+            capturedPiecePoint = new ChessboardPoint(from.getX(), to.getY());
+            capturedPiece = getPieceAt(capturedPiecePoint);
+            board[capturedPiecePoint.getX()][capturedPiecePoint.getY()] = null;
+        }
+
         setPieceAt(to, movedPiece);
         setPieceAt(from, null);
 
-        Move move = new Move(from, to, movedPiece, capturedPiece);
+        Move move = new Move(from, to, movedPiece, capturedPiece, capturedPiecePoint, previousEnPassantTarget, currentColor);
         moveHistory.add(move);
+        updateEnPassantTarget(from, to, movedPiece);
         currentColor = currentColor == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
         return move;
     }
@@ -186,11 +213,38 @@ public class BoardState {
             return;
         }
         board[point.getX()][point.getY()] = new ChessPiece(targetType, piece.getColor());
+        if (!moveHistory.isEmpty()) {
+            moveHistory.get(moveHistory.size() - 1).setPromotionResult(targetType);
+        }
+    }
+
+    public Move undoLastMove() {
+        if (moveHistory.isEmpty()) {
+            return null;
+        }
+
+        Move move = moveHistory.remove(moveHistory.size() - 1);
+        currentColor = move.getPreviousCurrentColor();
+        enPassantTarget = copyPoint(move.getPreviousEnPassantTarget());
+
+        board[move.getFrom().getX()][move.getFrom().getY()] = move.getMovedPiece();
+        board[move.getTo().getX()][move.getTo().getY()] = null;
+        if (move.getCapturedPiece() != null && move.getCapturedPiecePoint() != null) {
+            board[move.getCapturedPiecePoint().getX()][move.getCapturedPiecePoint().getY()] = move.getCapturedPiece();
+        }
+        return move;
     }
 
     private boolean wouldLeaveKingInCheck(ChessboardPoint from, ChessboardPoint to) {
         ChessPiece movingPiece = getPieceAt(from);
         ChessPiece capturedPiece = getPieceAt(to);
+        ChessboardPoint capturedPoint = copyPoint(to);
+        boolean enPassantCapture = isEnPassantCapture(from, to, movingPiece);
+        if (enPassantCapture) {
+            capturedPoint = new ChessboardPoint(from.getX(), to.getY());
+            capturedPiece = getPieceAt(capturedPoint);
+            board[capturedPoint.getX()][capturedPoint.getY()] = null;
+        }
         board[to.getX()][to.getY()] = movingPiece;
         board[from.getX()][from.getY()] = null;
 
@@ -198,7 +252,10 @@ public class BoardState {
         boolean inCheck = kingPoint == null || isSquareUnderAttack(kingPoint, oppositeColor(movingPiece.getColor()));
 
         board[from.getX()][from.getY()] = movingPiece;
-        board[to.getX()][to.getY()] = capturedPiece;
+        board[to.getX()][to.getY()] = capturedPoint.equals(to) ? capturedPiece : null;
+        if (enPassantCapture && capturedPoint != null) {
+            board[capturedPoint.getX()][capturedPoint.getY()] = capturedPiece;
+        }
         return inCheck;
     }
 
@@ -269,7 +326,11 @@ public class BoardState {
             return false;
         }
 
-        return dy == 1 && dx == direction && targetPiece != null && targetPiece.getColor() != color;
+        if (dy == 1 && dx == direction && targetPiece != null && targetPiece.getColor() != color) {
+            return true;
+        }
+
+        return dy == 1 && dx == direction && targetPiece == null && enPassantTarget != null && enPassantTarget.equals(to);
     }
 
     private boolean isPathClear(ChessboardPoint from, ChessboardPoint to) {
@@ -294,6 +355,26 @@ public class BoardState {
 
     private ChessColor oppositeColor(ChessColor color) {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+    }
+
+    private boolean isEnPassantCapture(ChessboardPoint from, ChessboardPoint to, ChessPiece movingPiece) {
+        return movingPiece != null
+                && movingPiece.getType() == PieceType.PAWN
+                && enPassantTarget != null
+                && enPassantTarget.equals(to)
+                && getPieceAt(to) == null
+                && from.getY() != to.getY();
+    }
+
+    private void updateEnPassantTarget(ChessboardPoint from, ChessboardPoint to, ChessPiece movedPiece) {
+        enPassantTarget = null;
+        if (movedPiece.getType() == PieceType.PAWN && Math.abs(from.getX() - to.getX()) == 2) {
+            enPassantTarget = new ChessboardPoint((from.getX() + to.getX()) / 2, from.getY());
+        }
+    }
+
+    private ChessboardPoint copyPoint(ChessboardPoint point) {
+        return point == null ? null : new ChessboardPoint(point.getX(), point.getY());
     }
 
     private void clearBoard() {

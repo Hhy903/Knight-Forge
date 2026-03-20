@@ -8,12 +8,14 @@ import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessPiece;
 import com.knightforge.model.ChessComponent;
 import com.knightforge.model.EmptySlotComponent;
+import com.knightforge.model.PieceType;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Board component displayed in the game window.
@@ -25,6 +27,7 @@ public class Chessboard extends JComponent {
     private final ClickController clickController = new ClickController(this);
     private final int CHESS_SIZE;
     private Consumer<String> statusConsumer;
+    private Function<ChessColor, PieceType> promotionHandler;
 
 
     public Chessboard(int width, int height) {
@@ -53,6 +56,10 @@ public class Chessboard extends JComponent {
         pushStatus();
     }
 
+    public void setPromotionHandler(Function<ChessColor, PieceType> promotionHandler) {
+        this.promotionHandler = promotionHandler;
+    }
+
     public ChessColor getCurrentColor() {
         return gameSession.getCurrentColor();
     }
@@ -76,8 +83,22 @@ public class Chessboard extends JComponent {
 
     public void handleSquareClick(ChessboardPoint point) {
         if (gameSession.handleSquareClick(point)) {
+            handlePromotionIfNeeded();
             refreshBoard();
         }
+        pushStatus();
+    }
+
+    public void undo() {
+        if (gameSession.undo()) {
+            refreshBoard();
+        }
+        pushStatus();
+    }
+
+    public void loadPromotionTestPosition() {
+        gameSession.loadPromotionTestPosition();
+        refreshBoard();
         pushStatus();
     }
 
@@ -114,5 +135,20 @@ public class Chessboard extends JComponent {
         if (statusConsumer != null) {
             statusConsumer.accept(gameSession.getStatusMessage());
         }
+    }
+
+    private void handlePromotionIfNeeded() {
+        if (gameSession.getPhase() != com.knightforge.controller.GamePhase.PROMOTION_PENDING || promotionHandler == null) {
+            return;
+        }
+
+        ChessColor promotingColor = gameSession.getLastMove() == null
+                ? ChessColor.NONE
+                : gameSession.getLastMove().getMovedPiece().getColor();
+        PieceType selectedType = promotionHandler.apply(promotingColor);
+        if (selectedType == null) {
+            selectedType = PieceType.QUEEN;
+        }
+        gameSession.choosePromotion(selectedType);
     }
 }

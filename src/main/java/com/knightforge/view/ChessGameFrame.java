@@ -1,6 +1,8 @@
 package com.knightforge.view;
 
 import com.knightforge.controller.GameController;
+import com.knightforge.model.ChessColor;
+import com.knightforge.model.PieceType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +34,7 @@ public class ChessGameFrame extends JFrame {
         addLabel();
         addHelloButton();
         addLoadButton();
+        addPromotionTestButton();
     }
 
 
@@ -41,6 +44,7 @@ public class ChessGameFrame extends JFrame {
     private void addChessboard() {
         Chessboard chessboard = new Chessboard(CHESSBOARD_SIZE, CHESSBOARD_SIZE);
         chessboard.setStatusConsumer(this::updateStatus);
+        chessboard.setPromotionHandler(this::showPromotionDialog);
         gameController = new GameController(chessboard);
         chessboard.setLocation(HEIGTH / 10, HEIGTH / 10);
         add(chessboard);
@@ -63,8 +67,8 @@ public class ChessGameFrame extends JFrame {
      */
 
     private void addHelloButton() {
-        JButton button = new JButton("Show Hello Here");
-        button.addActionListener((e) -> JOptionPane.showMessageDialog(this, "Hello, world!"));
+        JButton button = new JButton("Undo");
+        button.addActionListener((e) -> gameController.undo());
         button.setLocation(HEIGTH, HEIGTH / 10 + 120);
         button.setSize(200, 60);
         button.setFont(new Font("Rockwell", Font.BOLD, 20));
@@ -85,11 +89,44 @@ public class ChessGameFrame extends JFrame {
         });
     }
 
+    private void addPromotionTestButton() {
+        JButton button = new JButton("Promotion Test");
+        button.setLocation(HEIGTH, HEIGTH / 10 + 360);
+        button.setSize(200, 60);
+        button.setFont(new Font("Rockwell", Font.BOLD, 16));
+        button.addActionListener(e -> gameController.loadPromotionTestPosition());
+        add(button);
+    }
+
     private void updateStatus(String text) {
         if (statusLabel == null) {
             return;
         }
         statusLabel.setText("<html>" + (text == null ? "Black to move." : text) + "</html>");
+    }
+
+    private PieceType showPromotionDialog(ChessColor color) {
+        String[] options = {"Queen", "Rook", "Bishop", "Knight"};
+        String selection = (String) JOptionPane.showInputDialog(
+                this,
+                color.getName() + " promotion: choose a piece",
+                "Promotion",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (selection == null) {
+            return PieceType.QUEEN;
+        }
+
+        return switch (selection) {
+            case "Rook" -> PieceType.ROOK;
+            case "Bishop" -> PieceType.BISHOP;
+            case "Knight" -> PieceType.KNIGHT;
+            default -> PieceType.QUEEN;
+        };
     }
 
 }
