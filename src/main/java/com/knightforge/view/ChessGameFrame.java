@@ -14,6 +14,7 @@ public class ChessGameFrame extends JFrame {
     private final int HEIGTH;
     public final int CHESSBOARD_SIZE;
     private GameController gameController;
+    private JLabel statusLabel;
 
     public ChessGameFrame(int width, int height) {
         setTitle("KnightForge"); // Set the window title.
@@ -39,6 +40,7 @@ public class ChessGameFrame extends JFrame {
      */
     private void addChessboard() {
         Chessboard chessboard = new Chessboard(CHESSBOARD_SIZE, CHESSBOARD_SIZE);
+        chessboard.setStatusConsumer(this::updateStatus);
         gameController = new GameController(chessboard);
         chessboard.setLocation(HEIGTH / 10, HEIGTH / 10);
         add(chessboard);
@@ -48,10 +50,11 @@ public class ChessGameFrame extends JFrame {
      * Adds the status label to the game panel.
      */
     private void addLabel() {
-        JLabel statusLabel = new JLabel("Sample label");
+        statusLabel = new JLabel("Black to move.");
         statusLabel.setLocation(HEIGTH, HEIGTH / 10);
-        statusLabel.setSize(200, 60);
-        statusLabel.setFont(new Font("Rockwell", Font.BOLD, 20));
+        statusLabel.setSize(220, 100);
+        statusLabel.setVerticalAlignment(SwingConstants.TOP);
+        statusLabel.setFont(new Font("Rockwell", Font.BOLD, 18));
         add(statusLabel);
     }
 
@@ -80,6 +83,13 @@ public class ChessGameFrame extends JFrame {
             String path = JOptionPane.showInputDialog(this, "Input Path here");
             gameController.loadGameFromFile(path);
         });
+    }
+
+    private void updateStatus(String text) {
+        if (statusLabel == null) {
+            return;
+        }
+        statusLabel.setText("<html>" + (text == null ? "Black to move." : text) + "</html>");
     }
 
 }

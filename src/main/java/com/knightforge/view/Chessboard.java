@@ -2,29 +2,29 @@ package com.knightforge.view;
 
 
 import com.knightforge.controller.ClickController;
+import com.knightforge.controller.GameSession;
+import com.knightforge.model.BoardState;
 import com.knightforge.model.ChessColor;
+import com.knightforge.model.ChessPiece;
 import com.knightforge.model.ChessComponent;
 import com.knightforge.model.EmptySlotComponent;
-import com.knightforge.model.RookChessComponent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Board component displayed in the game window.
  */
 public class Chessboard extends JComponent {
-    /**
-     * Maintains the 8x8 board state and the side to move.
-     */
-    private static final int CHESSBOARD_SIZE = 8;
-
-    private final ChessComponent[][] chessComponents = new ChessComponent[CHESSBOARD_SIZE][CHESSBOARD_SIZE];
-    private ChessColor currentColor = ChessColor.BLACK;
+    private final ChessComponent[][] chessComponents = new ChessComponent[BoardState.BOARD_SIZE][BoardState.BOARD_SIZE];
+    private final GameSession gameSession = new GameSession(new BoardState());
     // All board squares share a single controller instance.
     private final ClickController clickController = new ClickController(this);
     private final int CHESS_SIZE;
+    private Consumer<String> statusConsumer;
 
 
     public Chessboard(int width, int height) {
@@ -33,66 +33,29 @@ public class Chessboard extends JComponent {
         CHESS_SIZE = width / 8;
         System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
 
-        initiateEmptyChessboard();
-
-        // FIXME: Initialize rooks only for testing.
-        initRookOnBoard(0, 0, ChessColor.BLACK);
-        initRookOnBoard(0, CHESSBOARD_SIZE - 1, ChessColor.BLACK);
-        initRookOnBoard(CHESSBOARD_SIZE - 1, 0, ChessColor.WHITE);
-        initRookOnBoard(CHESSBOARD_SIZE - 1, CHESSBOARD_SIZE - 1, ChessColor.WHITE);
+        refreshBoard();
     }
 
     public ChessComponent[][] getChessComponents() {
         return chessComponents;
     }
 
+    public BoardState getBoardState() {
+        return gameSession.getBoardState();
+    }
+
+    public GameSession getGameSession() {
+        return gameSession;
+    }
+
+    public void setStatusConsumer(Consumer<String> statusConsumer) {
+        this.statusConsumer = statusConsumer;
+        pushStatus();
+    }
+
     public ChessColor getCurrentColor() {
-        return currentColor;
+        return gameSession.getCurrentColor();
     }
-
-    public void putChessOnBoard(ChessComponent chessComponent) {
-        int row = chessComponent.getChessboardPoint().getX(), col = chessComponent.getChessboardPoint().getY();
-
-        if (chessComponents[row][col] != null) {
-            remove(chessComponents[row][col]);
-        }
-        add(chessComponents[row][col] = chessComponent);
-    }
-
-    public void swapChessComponents(ChessComponent chess1, ChessComponent chess2) {
-        // chess1 has higher priority and replaces chess2 if needed.
-        if (!(chess2 instanceof EmptySlotComponent)) {
-            remove(chess2);
-            add(chess2 = new EmptySlotComponent(chess2.getChessboardPoint(), chess2.getLocation(), clickController, CHESS_SIZE));
-        }
-        chess1.swapLocation(chess2);
-        int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
-        chessComponents[row1][col1] = chess1;
-        int row2 = chess2.getChessboardPoint().getX(), col2 = chess2.getChessboardPoint().getY();
-        chessComponents[row2][col2] = chess2;
-
-        chess1.repaint();
-        chess2.repaint();
-    }
-
-    public void initiateEmptyChessboard() {
-        for (int i = 0; i < chessComponents.length; i++) {
-            for (int j = 0; j < chessComponents[i].length; j++) {
-                putChessOnBoard(new EmptySlotComponent(new ChessboardPoint(i, j), calculatePoint(i, j), clickController, CHESS_SIZE));
-            }
-        }
-    }
-
-    public void swapColor() {
-        currentColor = currentColor == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
-    }
-
-    private void initRookOnBoard(int row, int col, ChessColor color) {
-        ChessComponent chessComponent = new RookChessComponent(new ChessboardPoint(row, col), calculatePoint(row, col), color, clickController, CHESS_SIZE);
-        chessComponent.setVisible(true);
-        putChessOnBoard(chessComponent);
-    }
-
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -106,6 +69,50 @@ public class Chessboard extends JComponent {
     }
 
     public void loadGame(List<String> chessData) {
-        chessData.forEach(System.out::println);
+        gameSession.loadGame(chessData);
+        refreshBoard();
+        pushStatus();
+    }
+
+    public void handleSquareClick(ChessboardPoint point) {
+        if (gameSession.handleSquareClick(point)) {
+            refreshBoard();
+        }
+        pushStatus();
+    }
+
+    private void refreshBoard() {
+        removeAll();
+        for (int row = 0; row < BoardState.BOARD_SIZE; row++) {
+            for (int col = 0; col < BoardState.BOARD_SIZE; col++) {
+                refreshSquare(row, col);
+            }
+        }
+        revalidate();
+        repaint();
+    }
+
+    private void refreshSquare(int row, int col) {
+        ChessboardPoint point = new ChessboardPoint(row, col);
+        ChessPiece piece = gameSession.getBoardState().getPieceAt(point);
+        Set<ChessboardPoint> highlightedTargets = gameSession.getHighlightedTargets();
+        ChessComponent currentComponent = chessComponents[row][col];
+        if (currentComponent != null) {
+            remove(currentComponent);
+        }
+
+        ChessComponent component = piece == null
+                ? new EmptySlotComponent(point, calculatePoint(row, col), clickController, CHESS_SIZE)
+                : new PieceChessComponent(point, calculatePoint(row, col), piece, clickController, CHESS_SIZE);
+        component.setSelected(point.equals(gameSession.getSelectedPoint()));
+        component.setMoveHint(highlightedTargets.contains(point));
+        chessComponents[row][col] = component;
+        add(component);
+    }
+
+    private void pushStatus() {
+        if (statusConsumer != null) {
+            statusConsumer.accept(gameSession.getStatusMessage());
+        }
     }
 }

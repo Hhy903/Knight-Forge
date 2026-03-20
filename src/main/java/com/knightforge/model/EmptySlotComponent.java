@@ -12,11 +12,16 @@ import java.io.IOException;
 public class EmptySlotComponent extends ChessComponent {
 
     public EmptySlotComponent(ChessboardPoint chessboardPoint, Point location, ClickController listener, int size) {
-        super(chessboardPoint, location, ChessColor.NONE, listener, size);
+        super(chessboardPoint, location, listener, size);
     }
 
     @Override
-    public boolean canMoveTo(ChessComponent[][] chessboard, ChessboardPoint destination) {
+    public ChessColor getChessColor() {
+        return ChessColor.NONE;
+    }
+
+    @Override
+    public boolean canMoveTo(BoardState boardState, ChessboardPoint destination) {
         return false;
     }
 
@@ -25,4 +30,16 @@ public class EmptySlotComponent extends ChessComponent {
         // No resource required.
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (isMoveHint()) {
+            g.setColor(new Color(46, 204, 113, 170));
+            g.fillOval(getWidth() / 3, getHeight() / 3, getWidth() / 3, getHeight() / 3);
+        }
+        if (isSelected()) {
+            g.setColor(Color.RED);
+            g.drawOval(0, 0, getWidth() - 1, getHeight() - 1);
+        }
+    }
 }

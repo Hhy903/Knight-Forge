@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * Abstract base class for every square on the 8x8 board.
- * Current implementations are {@link EmptySlotComponent} and {@link RookChessComponent}.
+ * Current implementations are {@link EmptySlotComponent} and piece-bearing square components.
  */
 public abstract class ChessComponent extends JComponent {
 
@@ -23,7 +23,7 @@ public abstract class ChessComponent extends JComponent {
     /**
      * Handles click events.
      */
-    private ClickController clickController;
+    private final ClickController clickController;
 
     /**
      * `chessboardPoint` stores the square position.
@@ -31,15 +31,14 @@ public abstract class ChessComponent extends JComponent {
      * `selected` marks whether the square is currently highlighted.
      */
     private ChessboardPoint chessboardPoint;
-    protected final ChessColor chessColor;
     private boolean selected;
+    private boolean moveHint;
 
-    protected ChessComponent(ChessboardPoint chessboardPoint, Point location, ChessColor chessColor, ClickController clickController, int size) {
+    protected ChessComponent(ChessboardPoint chessboardPoint, Point location, ClickController clickController, int size) {
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         setLocation(location);
         setSize(size, size);
         this.chessboardPoint = chessboardPoint;
-        this.chessColor = chessColor;
         this.selected = false;
         this.clickController = clickController;
     }
@@ -52,9 +51,7 @@ public abstract class ChessComponent extends JComponent {
         this.chessboardPoint = chessboardPoint;
     }
 
-    public ChessColor getChessColor() {
-        return chessColor;
-    }
+    public abstract ChessColor getChessColor();
 
     public boolean isSelected() {
         return selected;
@@ -62,6 +59,14 @@ public abstract class ChessComponent extends JComponent {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public boolean isMoveHint() {
+        return moveHint;
+    }
+
+    public void setMoveHint(boolean moveHint) {
+        this.moveHint = moveHint;
     }
 
     /**
@@ -94,7 +99,7 @@ public abstract class ChessComponent extends JComponent {
      * @param destination the target square, such as (0, 0) or (0, 7)
      * @return whether this piece can legally move from its current position to the target
      */
-    public abstract boolean canMoveTo(ChessComponent[][] chessboard, ChessboardPoint destination);
+    public abstract boolean canMoveTo(BoardState boardState, ChessboardPoint destination);
 
     /**
      * Loads static resources such as piece images.
@@ -105,8 +110,7 @@ public abstract class ChessComponent extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponents(g);
-        System.out.printf("repaint chess [%d,%d]\n", chessboardPoint.getX(), chessboardPoint.getY());
+        super.paintComponent(g);
         Color squareColor = BACKGROUND_COLORS[(chessboardPoint.getX() + chessboardPoint.getY()) % 2];
         g.setColor(squareColor);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
