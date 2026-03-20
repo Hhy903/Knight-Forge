@@ -5,8 +5,9 @@ import controller.ClickController;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Represents a rook in chess.
@@ -25,17 +26,25 @@ public class RookChessComponent extends ChessComponent {
     private Image rookImage;
 
     /**
-     * Loads the rook images from disk.
+     * Loads the rook images from the classpath.
      *
      * @throws IOException if the image files cannot be loaded
      */
     public void loadResource() throws IOException {
         if (ROOK_WHITE == null) {
-            ROOK_WHITE = ImageIO.read(new File("./images/rook-white.png"));
+            try (InputStream stream = Objects.requireNonNull(
+                    getClass().getResourceAsStream("/images/rook-white.png"),
+                    "Missing resource: /images/rook-white.png")) {
+                ROOK_WHITE = ImageIO.read(stream);
+            }
         }
 
         if (ROOK_BLACK == null) {
-            ROOK_BLACK = ImageIO.read(new File("./images/rook-black.png"));
+            try (InputStream stream = Objects.requireNonNull(
+                    getClass().getResourceAsStream("/images/rook-black.png"),
+                    "Missing resource: /images/rook-black.png")) {
+                ROOK_BLACK = ImageIO.read(stream);
+            }
         }
     }
 

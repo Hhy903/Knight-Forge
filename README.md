@@ -57,3 +57,23 @@ KnightForge is meant to be both a functional game and a learning exercise. By im
 ## Current Direction
 
 The current codebase already includes the basic board structure, square components, click handling, and rook movement logic. The broader project direction is to continue expanding this foundation into a fuller chess system under the KnightForge name.
+
+## Project Structure
+
+The project now follows a standard Gradle layout:
+
+- `src/main/java` for application source code
+- `src/main/resources` for images and bundled resource files
+- `src/test/java` for automated tests
+- `build.gradle` for build configuration
+
+This structure makes the project easier to build in IntelliJ, easier to test, and easier for multiple teammates to work on consistently.
+
+## Build and Run
+
+After opening the project as a Gradle project, you can use the Gradle Wrapper commands:
+
+- `./gradlew.bat build` on Windows to compile the project and run tests
+- `./gradlew.bat test` on Windows to run the test suite
+- `./gradlew.bat run` on Windows to launch the application
+- `./gradlew build` on macOS or Linux

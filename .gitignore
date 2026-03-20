@@ -3,4 +3,5 @@ out/
 *.class
 *.iml
 .DS_Store
-
+.gradle/
+build/
