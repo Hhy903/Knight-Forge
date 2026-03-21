@@ -77,3 +77,6 @@ After opening the project as a Gradle project, you can use the Gradle Wrapper co
 - `./gradlew.bat test` on Windows to run the test suite
 - `./gradlew.bat run` on Windows to launch the application
 - `./gradlew build` on macOS or Linux
+
+## For Midterm Review
+See docs/midterm-design.md
