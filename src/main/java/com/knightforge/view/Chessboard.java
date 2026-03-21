@@ -27,7 +27,9 @@ public class Chessboard extends JComponent {
     private final ClickController clickController = new ClickController(this);
     private final int CHESS_SIZE;
     private Consumer<String> statusConsumer;
+    private Consumer<String> gameOverConsumer;
     private Function<ChessColor, PieceType> promotionHandler;
+    private String lastPublishedGameResult;
 
 
     public Chessboard(int width, int height) {
@@ -60,6 +62,10 @@ public class Chessboard extends JComponent {
         this.promotionHandler = promotionHandler;
     }
 
+    public void setGameOverConsumer(Consumer<String> gameOverConsumer) {
+        this.gameOverConsumer = gameOverConsumer;
+    }
+
     public ChessColor getCurrentColor() {
         return gameSession.getCurrentColor();
     }
@@ -79,6 +85,7 @@ public class Chessboard extends JComponent {
         gameSession.loadGame(chessData);
         refreshBoard();
         pushStatus();
+        publishGameOverIfNeeded();
     }
 
     public void handleSquareClick(ChessboardPoint point) {
@@ -87,6 +94,7 @@ public class Chessboard extends JComponent {
             refreshBoard();
         }
         pushStatus();
+        publishGameOverIfNeeded();
     }
 
     public void undo() {
@@ -94,12 +102,14 @@ public class Chessboard extends JComponent {
             refreshBoard();
         }
         pushStatus();
+        publishGameOverIfNeeded();
     }
 
     public void loadPromotionTestPosition() {
         gameSession.loadPromotionTestPosition();
         refreshBoard();
         pushStatus();
+        publishGameOverIfNeeded();
     }
 
     private void refreshBoard() {
@@ -134,6 +144,18 @@ public class Chessboard extends JComponent {
     private void pushStatus() {
         if (statusConsumer != null) {
             statusConsumer.accept(gameSession.getStatusMessage());
+        }
+    }
+
+    private void publishGameOverIfNeeded() {
+        String currentResult = gameSession.getGameResult();
+        if (currentResult == null) {
+            lastPublishedGameResult = null;
+            return;
+        }
+        if (gameOverConsumer != null && !currentResult.equals(lastPublishedGameResult)) {
+            lastPublishedGameResult = currentResult;
+            gameOverConsumer.accept(currentResult);
         }
     }
 

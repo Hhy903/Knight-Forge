@@ -88,10 +88,12 @@ public class GameSession {
         phase = GamePhase.SELECTING_PIECE;
         ChessColor sideToMove = boardState.getCurrentColor();
         updateGameStatusAfterMove(sideToMove);
-        statusMessage = String.format("%s promoted to %s. %s",
-                oppositeColor(boardState.getCurrentColor()).getName(),
-                pieceType.name(),
-                statusMessage == null ? "" : statusMessage);
+        if (phase != GamePhase.GAME_OVER) {
+            statusMessage = String.format("%s promoted to %s. %s",
+                    oppositeColor(boardState.getCurrentColor()).getName(),
+                    pieceType.name(),
+                    statusMessage == null ? "" : statusMessage);
+        }
         return true;
     }
 
@@ -220,6 +222,11 @@ public class GameSession {
             } else {
                 finishGame("Draw by stalemate.");
             }
+            return;
+        }
+
+        if (boardState.isInsufficientMaterial()) {
+            finishGame("Draw by insufficient material.");
             return;
         }
 

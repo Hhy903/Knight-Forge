@@ -13,6 +13,12 @@ public class Move {
     private final ChessboardPoint capturedPiecePoint;
     private final ChessboardPoint previousEnPassantTarget;
     private final ChessColor previousCurrentColor;
+    private final boolean previousWhiteKingSideCastleAvailable;
+    private final boolean previousWhiteQueenSideCastleAvailable;
+    private final boolean previousBlackKingSideCastleAvailable;
+    private final boolean previousBlackQueenSideCastleAvailable;
+    private final ChessboardPoint rookFrom;
+    private final ChessboardPoint rookTo;
     private PieceType promotionResult;
 
     public Move(
@@ -22,7 +28,13 @@ public class Move {
             ChessPiece capturedPiece,
             ChessboardPoint capturedPiecePoint,
             ChessboardPoint previousEnPassantTarget,
-            ChessColor previousCurrentColor
+            ChessColor previousCurrentColor,
+            boolean previousWhiteKingSideCastleAvailable,
+            boolean previousWhiteQueenSideCastleAvailable,
+            boolean previousBlackKingSideCastleAvailable,
+            boolean previousBlackQueenSideCastleAvailable,
+            ChessboardPoint rookFrom,
+            ChessboardPoint rookTo
     ) {
         this.from = from;
         this.to = to;
@@ -31,6 +43,12 @@ public class Move {
         this.capturedPiecePoint = capturedPiecePoint;
         this.previousEnPassantTarget = previousEnPassantTarget;
         this.previousCurrentColor = previousCurrentColor;
+        this.previousWhiteKingSideCastleAvailable = previousWhiteKingSideCastleAvailable;
+        this.previousWhiteQueenSideCastleAvailable = previousWhiteQueenSideCastleAvailable;
+        this.previousBlackKingSideCastleAvailable = previousBlackKingSideCastleAvailable;
+        this.previousBlackQueenSideCastleAvailable = previousBlackQueenSideCastleAvailable;
+        this.rookFrom = rookFrom;
+        this.rookTo = rookTo;
     }
 
     public ChessboardPoint getFrom() {
@@ -59,6 +77,30 @@ public class Move {
 
     public ChessColor getPreviousCurrentColor() {
         return previousCurrentColor;
+    }
+
+    public boolean isPreviousWhiteKingSideCastleAvailable() {
+        return previousWhiteKingSideCastleAvailable;
+    }
+
+    public boolean isPreviousWhiteQueenSideCastleAvailable() {
+        return previousWhiteQueenSideCastleAvailable;
+    }
+
+    public boolean isPreviousBlackKingSideCastleAvailable() {
+        return previousBlackKingSideCastleAvailable;
+    }
+
+    public boolean isPreviousBlackQueenSideCastleAvailable() {
+        return previousBlackQueenSideCastleAvailable;
+    }
+
+    public ChessboardPoint getRookFrom() {
+        return rookFrom;
+    }
+
+    public ChessboardPoint getRookTo() {
+        return rookTo;
     }
 
     public PieceType getPromotionResult() {

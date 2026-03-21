@@ -45,6 +45,7 @@ public class ChessGameFrame extends JFrame {
         Chessboard chessboard = new Chessboard(CHESSBOARD_SIZE, CHESSBOARD_SIZE);
         chessboard.setStatusConsumer(this::updateStatus);
         chessboard.setPromotionHandler(this::showPromotionDialog);
+        chessboard.setGameOverConsumer(this::showGameOverDialog);
         gameController = new GameController(chessboard);
         chessboard.setLocation(HEIGTH / 10, HEIGTH / 10);
         add(chessboard);
@@ -127,6 +128,10 @@ public class ChessGameFrame extends JFrame {
             case "Knight" -> PieceType.KNIGHT;
             default -> PieceType.QUEEN;
         };
+    }
+
+    private void showGameOverDialog(String result) {
+        JOptionPane.showMessageDialog(this, result, "Game Over", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }
