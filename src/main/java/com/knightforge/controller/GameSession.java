@@ -6,6 +6,7 @@ import com.knightforge.model.Move;
 import com.knightforge.model.PieceType;
 import com.knightforge.view.ChessboardPoint;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ public class GameSession {
     private Move lastMove;
     private String gameResult;
     private String statusMessage;
+    private final List<GameSessionListener> listeners = new ArrayList<>();
 
     public GameSession(BoardState boardState) {
         this.boardState = boardState;
@@ -66,12 +68,20 @@ public class GameSession {
         return new HashSet<>(boardState.getLegalMovesFrom(selectedPoint));
     }
 
+    public void addListener(GameSessionListener listener) {
+        listeners.add(listener);
+    }
+
     public boolean handleSquareClick(ChessboardPoint point) {
-        return switch (phase) {
+        boolean changed = switch (phase) {
             case SELECTING_PIECE -> handleSelectingPiece(point);
             case SELECTING_TARGET -> handleSelectingTarget(point);
             case PROMOTION_PENDING, GAME_OVER, LOADING_GAME -> false;
         };
+        if (changed) {
+            notifyListeners();
+        }
+        return changed;
     }
 
     public boolean choosePromotion(PieceType pieceType) {
@@ -94,6 +104,7 @@ public class GameSession {
                     pieceType.name(),
                     statusMessage == null ? "" : statusMessage);
         }
+        notifyListeners();
         return true;
     }
 
@@ -101,6 +112,7 @@ public class GameSession {
         Move undoneMove = boardState.undoLastMove();
         if (undoneMove == null) {
             statusMessage = "No move to undo.";
+            notifyListeners();
             return false;
         }
 
@@ -108,6 +120,7 @@ public class GameSession {
         gameResult = null;
         phase = GamePhase.SELECTING_PIECE;
         statusMessage = boardState.getCurrentColor().getName() + " to move. Last move undone.";
+        notifyListeners();
         return true;
     }
 
@@ -136,12 +149,14 @@ public class GameSession {
         gameResult = null;
         phase = GamePhase.SELECTING_PIECE;
         statusMessage = "New game started.";
+        notifyListeners();
     }
 
     public void loadGame(List<String> chessData) {
         enterLoadingPhase();
         boardState.loadFromLines(chessData);
         finishLoading();
+        notifyListeners();
     }
 
     public List<String> saveGame() {
@@ -245,5 +260,12 @@ public class GameSession {
 
     private ChessColor oppositeColor(ChessColor color) {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+    }
+
+    private void notifyListeners() {
+        GameSessionEvent event = new GameSessionEvent(phase, statusMessage, gameResult);
+        for (GameSessionListener listener : listeners) {
+            listener.onSessionChanged(event);
+        }
     }
 }

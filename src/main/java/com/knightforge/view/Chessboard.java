@@ -2,12 +2,13 @@ package com.knightforge.view;
 
 
 import com.knightforge.controller.ClickController;
+import com.knightforge.controller.GameSessionEvent;
+import com.knightforge.controller.GameSessionListener;
 import com.knightforge.controller.GameSession;
 import com.knightforge.model.BoardState;
 import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessPiece;
 import com.knightforge.model.ChessComponent;
-import com.knightforge.model.EmptySlotComponent;
 import com.knightforge.model.PieceType;
 
 import javax.swing.*;
@@ -20,10 +21,11 @@ import java.util.function.Function;
 /**
  * Board component displayed in the game window.
  */
-public class Chessboard extends JComponent {
+public class Chessboard extends JComponent implements GameSessionListener {
     private static final int LABEL_MARGIN = 24;
     private final ChessComponent[][] chessComponents = new ChessComponent[BoardState.BOARD_SIZE][BoardState.BOARD_SIZE];
     private final GameSession gameSession = new GameSession(new BoardState());
+    private final PieceComponentFactory componentFactory = new PieceComponentFactory();
     // All board squares share a single controller instance.
     private final ClickController clickController = new ClickController(this);
     private final int CHESS_SIZE;
@@ -39,6 +41,7 @@ public class Chessboard extends JComponent {
         CHESS_SIZE = width / 8;
         System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
 
+        gameSession.addListener(this);
         refreshBoard();
     }
 
@@ -86,9 +89,6 @@ public class Chessboard extends JComponent {
 
     public void loadGame(List<String> chessData) {
         gameSession.loadGame(chessData);
-        refreshBoard();
-        pushStatus();
-        publishGameOverIfNeeded();
     }
 
     public List<String> saveGame() {
@@ -98,18 +98,11 @@ public class Chessboard extends JComponent {
     public void handleSquareClick(ChessboardPoint point) {
         if (gameSession.handleSquareClick(point)) {
             handlePromotionIfNeeded();
-            refreshBoard();
         }
-        pushStatus();
-        publishGameOverIfNeeded();
     }
 
     public void undo() {
-        if (gameSession.undo()) {
-            refreshBoard();
-        }
-        pushStatus();
-        publishGameOverIfNeeded();
+        gameSession.undo();
     }
 
     private void refreshBoard() {
@@ -132,9 +125,13 @@ public class Chessboard extends JComponent {
             remove(currentComponent);
         }
 
-        ChessComponent component = piece == null
-                ? new EmptySlotComponent(point, calculatePoint(row, col), clickController, CHESS_SIZE)
-                : new PieceChessComponent(point, calculatePoint(row, col), piece, clickController, CHESS_SIZE);
+        ChessComponent component = componentFactory.createComponent(
+                point,
+                calculatePoint(row, col),
+                piece,
+                clickController,
+                CHESS_SIZE
+        );
         component.setSelected(point.equals(gameSession.getSelectedPoint()));
         component.setMoveHint(highlightedTargets.contains(point));
         chessComponents[row][col] = component;
@@ -157,6 +154,13 @@ public class Chessboard extends JComponent {
             lastPublishedGameResult = currentResult;
             gameOverConsumer.accept(currentResult);
         }
+    }
+
+    @Override
+    public void onSessionChanged(GameSessionEvent event) {
+        refreshBoard();
+        pushStatus();
+        publishGameOverIfNeeded();
     }
 
     private void handlePromotionIfNeeded() {
