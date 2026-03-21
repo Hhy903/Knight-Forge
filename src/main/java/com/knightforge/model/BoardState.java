@@ -4,8 +4,9 @@ import com.knightforge.view.ChessboardPoint;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
 
 /**
  * Stores the domain state of a chess game independently from Swing components.
@@ -21,6 +22,8 @@ public class BoardState {
     private boolean whiteQueenSideCastleAvailable;
     private boolean blackKingSideCastleAvailable;
     private boolean blackQueenSideCastleAvailable;
+    private int halfmoveClock;
+    private final Map<String, Integer> positionCounts = new HashMap<>();
 
     public BoardState() {
         reset();
@@ -36,6 +39,8 @@ public class BoardState {
         whiteQueenSideCastleAvailable = true;
         blackKingSideCastleAvailable = true;
         blackQueenSideCastleAvailable = true;
+        halfmoveClock = 0;
+        resetPositionTracking();
     }
 
     public void loadPromotionTestPosition() {
@@ -47,10 +52,89 @@ public class BoardState {
         whiteQueenSideCastleAvailable = false;
         blackKingSideCastleAvailable = false;
         blackQueenSideCastleAvailable = false;
+        halfmoveClock = 0;
+        resetPositionTracking();
 
         board[0][4] = new ChessPiece(PieceType.KING, ChessColor.BLACK);
         board[7][4] = new ChessPiece(PieceType.KING, ChessColor.WHITE);
         board[6][0] = new ChessPiece(PieceType.PAWN, ChessColor.BLACK);
+    }
+
+    public void loadCheckmateTestPosition() {
+        reset();
+        moveHistory.clear();
+        enPassantTarget = null;
+        currentColor = ChessColor.BLACK;
+        halfmoveClock = 0;
+        resetPositionTracking();
+
+        board[6][5] = null;
+        board[5][5] = new ChessPiece(PieceType.PAWN, ChessColor.WHITE);
+        board[6][6] = null;
+        board[4][6] = new ChessPiece(PieceType.PAWN, ChessColor.WHITE);
+
+        board[1][4] = null;
+        board[3][4] = new ChessPiece(PieceType.PAWN, ChessColor.BLACK);
+    }
+
+    public void loadDrawTestPosition() {
+        clearBoard();
+        moveHistory.clear();
+        enPassantTarget = null;
+        currentColor = ChessColor.BLACK;
+        whiteKingSideCastleAvailable = false;
+        whiteQueenSideCastleAvailable = false;
+        blackKingSideCastleAvailable = false;
+        blackQueenSideCastleAvailable = false;
+        halfmoveClock = 0;
+
+        board[0][4] = new ChessPiece(PieceType.KING, ChessColor.BLACK);
+        board[7][4] = new ChessPiece(PieceType.KING, ChessColor.WHITE);
+        resetPositionTracking();
+    }
+
+    public List<String> serialize() {
+        List<String> lines = new ArrayList<>();
+        lines.add("CURRENT:" + currentColor.name());
+        lines.add("CASTLE:" + castleRightsString());
+        lines.add("EN_PASSANT:" + pointToString(enPassantTarget));
+        lines.add("HALFMOVE:" + halfmoveClock);
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            StringBuilder rowBuilder = new StringBuilder();
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                if (col > 0) {
+                    rowBuilder.append(' ');
+                }
+                rowBuilder.append(pieceToCode(board[row][col]));
+            }
+            lines.add(rowBuilder.toString());
+        }
+        return lines;
+    }
+
+    public void loadFromLines(List<String> lines) {
+        if (lines == null || lines.size() < 12) {
+            throw new IllegalArgumentException("Save file is incomplete.");
+        }
+
+        clearBoard();
+        moveHistory.clear();
+        currentColor = ChessColor.valueOf(readValue(lines.get(0), "CURRENT"));
+        applyCastleRights(readValue(lines.get(1), "CASTLE"));
+        enPassantTarget = parsePoint(readValue(lines.get(2), "EN_PASSANT"));
+        halfmoveClock = Integer.parseInt(readValue(lines.get(3), "HALFMOVE"));
+
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            String[] tokens = lines.get(row + 4).trim().split("\\s+");
+            if (tokens.length != BOARD_SIZE) {
+                throw new IllegalArgumentException("Invalid board row at line " + (row + 5));
+            }
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                board[row][col] = codeToPiece(tokens[col]);
+            }
+        }
+
+        resetPositionTracking();
     }
 
     public ChessPiece getPieceAt(ChessboardPoint point) {
@@ -75,6 +159,14 @@ public class BoardState {
 
     public ChessboardPoint getEnPassantTarget() {
         return enPassantTarget;
+    }
+
+    public int getHalfmoveClock() {
+        return halfmoveClock;
+    }
+
+    public boolean isThreefoldRepetition() {
+        return positionCounts.getOrDefault(buildPositionKey(), 0) >= 3;
     }
 
     public boolean isCurrentPlayerPiece(ChessboardPoint point) {
@@ -266,13 +358,16 @@ public class BoardState {
                 whiteQueenSideCastleAvailable,
                 blackKingSideCastleAvailable,
                 blackQueenSideCastleAvailable,
+                halfmoveClock,
                 rookFrom,
                 rookTo
         );
         moveHistory.add(move);
         updateEnPassantTarget(from, to, movedPiece);
         updateCastleAvailability(from, to, movedPiece, capturedPiece, capturedPiecePoint);
+        updateHalfmoveClock(movedPiece, capturedPiece);
         currentColor = currentColor == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+        recordCurrentPosition();
         return move;
     }
 
@@ -308,6 +403,7 @@ public class BoardState {
         whiteQueenSideCastleAvailable = move.isPreviousWhiteQueenSideCastleAvailable();
         blackKingSideCastleAvailable = move.isPreviousBlackKingSideCastleAvailable();
         blackQueenSideCastleAvailable = move.isPreviousBlackQueenSideCastleAvailable();
+        halfmoveClock = move.getPreviousHalfmoveClock();
 
         board[move.getFrom().getX()][move.getFrom().getY()] = move.getMovedPiece();
         board[move.getTo().getX()][move.getTo().getY()] = null;
@@ -318,6 +414,7 @@ public class BoardState {
             board[move.getRookFrom().getX()][move.getRookFrom().getY()] = board[move.getRookTo().getX()][move.getRookTo().getY()];
             board[move.getRookTo().getX()][move.getRookTo().getY()] = null;
         }
+        rebuildPositionTracking();
         return move;
     }
 
@@ -459,6 +556,14 @@ public class BoardState {
         }
     }
 
+    private void updateHalfmoveClock(ChessPiece movedPiece, ChessPiece capturedPiece) {
+        if (movedPiece.getType() == PieceType.PAWN || capturedPiece != null) {
+            halfmoveClock = 0;
+        } else {
+            halfmoveClock++;
+        }
+    }
+
     private void updateCastleAvailability(
             ChessboardPoint from,
             ChessboardPoint to,
@@ -566,6 +671,256 @@ public class BoardState {
 
     private ChessboardPoint copyPoint(ChessboardPoint point) {
         return point == null ? null : new ChessboardPoint(point.getX(), point.getY());
+    }
+
+    private void resetPositionTracking() {
+        positionCounts.clear();
+        recordCurrentPosition();
+    }
+
+    private void rebuildPositionTracking() {
+        positionCounts.clear();
+        recordCurrentPosition();
+
+        ChessColor replayColor = ChessColor.BLACK;
+        ChessPiece[][] replayBoard = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                replayBoard[row][col] = null;
+            }
+        }
+        initializeReplayBoard(replayBoard);
+        ChessboardPoint replayEnPassant = null;
+        boolean replayWhiteKingSide = true;
+        boolean replayWhiteQueenSide = true;
+        boolean replayBlackKingSide = true;
+        boolean replayBlackQueenSide = true;
+
+        for (Move move : moveHistory) {
+            ChessPiece movedPiece = replayBoard[move.getFrom().getX()][move.getFrom().getY()];
+            ChessPiece capturedPiece = replayBoard[move.getTo().getX()][move.getTo().getY()];
+            if (movedPiece != null && movedPiece.getType() == PieceType.PAWN && replayEnPassant != null
+                    && move.getTo().equals(replayEnPassant) && replayBoard[move.getTo().getX()][move.getTo().getY()] == null
+                    && move.getFrom().getY() != move.getTo().getY()) {
+                replayBoard[move.getFrom().getX()][move.getTo().getY()] = null;
+                capturedPiece = move.getCapturedPiece();
+            }
+
+            replayBoard[move.getTo().getX()][move.getTo().getY()] = movedPiece;
+            replayBoard[move.getFrom().getX()][move.getFrom().getY()] = null;
+            if (move.getRookFrom() != null && move.getRookTo() != null) {
+                replayBoard[move.getRookTo().getX()][move.getRookTo().getY()] = replayBoard[move.getRookFrom().getX()][move.getRookFrom().getY()];
+                replayBoard[move.getRookFrom().getX()][move.getRookFrom().getY()] = null;
+            }
+            if (move.getPromotionResult() != null) {
+                replayBoard[move.getTo().getX()][move.getTo().getY()] = new ChessPiece(move.getPromotionResult(), movedPiece.getColor());
+            }
+
+            replayEnPassant = null;
+            if (movedPiece != null && movedPiece.getType() == PieceType.PAWN
+                    && Math.abs(move.getFrom().getX() - move.getTo().getX()) == 2) {
+                replayEnPassant = new ChessboardPoint((move.getFrom().getX() + move.getTo().getX()) / 2, move.getFrom().getY());
+            }
+
+            if (movedPiece != null) {
+                if (movedPiece.getType() == PieceType.KING) {
+                    if (movedPiece.getColor() == ChessColor.WHITE) {
+                        replayWhiteKingSide = false;
+                        replayWhiteQueenSide = false;
+                    } else {
+                        replayBlackKingSide = false;
+                        replayBlackQueenSide = false;
+                    }
+                }
+                if (movedPiece.getType() == PieceType.ROOK) {
+                    if (movedPiece.getColor() == ChessColor.WHITE) {
+                        if (move.getFrom().getX() == 7 && move.getFrom().getY() == 0) {
+                            replayWhiteQueenSide = false;
+                        } else if (move.getFrom().getX() == 7 && move.getFrom().getY() == 7) {
+                            replayWhiteKingSide = false;
+                        }
+                    } else {
+                        if (move.getFrom().getX() == 0 && move.getFrom().getY() == 0) {
+                            replayBlackQueenSide = false;
+                        } else if (move.getFrom().getX() == 0 && move.getFrom().getY() == 7) {
+                            replayBlackKingSide = false;
+                        }
+                    }
+                }
+            }
+            if (capturedPiece != null && move.getCapturedPiecePoint() != null && capturedPiece.getType() == PieceType.ROOK) {
+                if (capturedPiece.getColor() == ChessColor.WHITE) {
+                    if (move.getCapturedPiecePoint().getX() == 7 && move.getCapturedPiecePoint().getY() == 0) {
+                        replayWhiteQueenSide = false;
+                    } else if (move.getCapturedPiecePoint().getX() == 7 && move.getCapturedPiecePoint().getY() == 7) {
+                        replayWhiteKingSide = false;
+                    }
+                } else {
+                    if (move.getCapturedPiecePoint().getX() == 0 && move.getCapturedPiecePoint().getY() == 0) {
+                        replayBlackQueenSide = false;
+                    } else if (move.getCapturedPiecePoint().getX() == 0 && move.getCapturedPiecePoint().getY() == 7) {
+                        replayBlackKingSide = false;
+                    }
+                }
+            }
+
+            replayColor = replayColor == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+            positionCounts.merge(buildPositionKey(replayBoard, replayColor, replayEnPassant,
+                    replayWhiteKingSide, replayWhiteQueenSide, replayBlackKingSide, replayBlackQueenSide), 1, Integer::sum);
+        }
+    }
+
+    private void initializeReplayBoard(ChessPiece[][] replayBoard) {
+        PieceType[] backRank = {
+                PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN,
+                PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK
+        };
+
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            replayBoard[0][col] = new ChessPiece(backRank[col], ChessColor.BLACK);
+            replayBoard[1][col] = new ChessPiece(PieceType.PAWN, ChessColor.BLACK);
+            replayBoard[6][col] = new ChessPiece(PieceType.PAWN, ChessColor.WHITE);
+            replayBoard[7][col] = new ChessPiece(backRank[col], ChessColor.WHITE);
+        }
+    }
+
+    private void recordCurrentPosition() {
+        positionCounts.merge(buildPositionKey(), 1, Integer::sum);
+    }
+
+    private String buildPositionKey() {
+        return buildPositionKey(board, currentColor, enPassantTarget,
+                whiteKingSideCastleAvailable, whiteQueenSideCastleAvailable,
+                blackKingSideCastleAvailable, blackQueenSideCastleAvailable);
+    }
+
+    private String buildPositionKey(
+            ChessPiece[][] boardState,
+            ChessColor colorToMove,
+            ChessboardPoint enPassant,
+            boolean whiteKingSide,
+            boolean whiteQueenSide,
+            boolean blackKingSide,
+            boolean blackQueenSide
+    ) {
+        StringBuilder builder = new StringBuilder();
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                ChessPiece piece = boardState[row][col];
+                if (piece == null) {
+                    builder.append('.');
+                } else {
+                    char colorPrefix = piece.getColor() == ChessColor.WHITE ? 'w' : 'b';
+                    char typeCode = switch (piece.getType()) {
+                        case KING -> 'k';
+                        case QUEEN -> 'q';
+                        case ROOK -> 'r';
+                        case BISHOP -> 'b';
+                        case KNIGHT -> 'n';
+                        case PAWN -> 'p';
+                    };
+                    builder.append(colorPrefix).append(typeCode);
+                }
+                builder.append(',');
+            }
+        }
+        builder.append('|').append(colorToMove.name());
+        builder.append('|').append(whiteKingSide ? 'K' : '-').append(whiteQueenSide ? 'Q' : '-')
+                .append(blackKingSide ? 'k' : '-').append(blackQueenSide ? 'q' : '-');
+        builder.append('|');
+        if (enPassant == null) {
+            builder.append('-');
+        } else {
+            builder.append(enPassant.getX()).append(':').append(enPassant.getY());
+        }
+        return builder.toString();
+    }
+
+    private String castleRightsString() {
+        StringBuilder builder = new StringBuilder();
+        if (whiteKingSideCastleAvailable) {
+            builder.append('K');
+        }
+        if (whiteQueenSideCastleAvailable) {
+            builder.append('Q');
+        }
+        if (blackKingSideCastleAvailable) {
+            builder.append('k');
+        }
+        if (blackQueenSideCastleAvailable) {
+            builder.append('q');
+        }
+        return builder.isEmpty() ? "-" : builder.toString();
+    }
+
+    private void applyCastleRights(String rights) {
+        whiteKingSideCastleAvailable = rights.contains("K");
+        whiteQueenSideCastleAvailable = rights.contains("Q");
+        blackKingSideCastleAvailable = rights.contains("k");
+        blackQueenSideCastleAvailable = rights.contains("q");
+    }
+
+    private String pointToString(ChessboardPoint point) {
+        return point == null ? "-" : point.getX() + "," + point.getY();
+    }
+
+    private ChessboardPoint parsePoint(String value) {
+        if ("-".equals(value)) {
+            return null;
+        }
+        String[] parts = value.split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid point: " + value);
+        }
+        return new ChessboardPoint(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+    }
+
+    private String pieceToCode(ChessPiece piece) {
+        if (piece == null) {
+            return "--";
+        }
+        char colorCode = piece.getColor() == ChessColor.WHITE ? 'w' : 'b';
+        char typeCode = switch (piece.getType()) {
+            case KING -> 'K';
+            case QUEEN -> 'Q';
+            case ROOK -> 'R';
+            case BISHOP -> 'B';
+            case KNIGHT -> 'N';
+            case PAWN -> 'P';
+        };
+        return "" + colorCode + typeCode;
+    }
+
+    private ChessPiece codeToPiece(String code) {
+        if ("--".equals(code)) {
+            return null;
+        }
+        if (code.length() != 2) {
+            throw new IllegalArgumentException("Invalid piece code: " + code);
+        }
+        ChessColor color = switch (code.charAt(0)) {
+            case 'w' -> ChessColor.WHITE;
+            case 'b' -> ChessColor.BLACK;
+            default -> throw new IllegalArgumentException("Invalid piece color code: " + code);
+        };
+        PieceType type = switch (code.charAt(1)) {
+            case 'K' -> PieceType.KING;
+            case 'Q' -> PieceType.QUEEN;
+            case 'R' -> PieceType.ROOK;
+            case 'B' -> PieceType.BISHOP;
+            case 'N' -> PieceType.KNIGHT;
+            case 'P' -> PieceType.PAWN;
+            default -> throw new IllegalArgumentException("Invalid piece type code: " + code);
+        };
+        return new ChessPiece(type, color);
+    }
+
+    private String readValue(String line, String key) {
+        String prefix = key + ":";
+        if (!line.startsWith(prefix)) {
+            throw new IllegalArgumentException("Expected " + key + " line.");
+        }
+        return line.substring(prefix.length()).trim();
     }
 
     private void clearBoard() {

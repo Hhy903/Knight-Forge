@@ -6,6 +6,7 @@ import com.knightforge.model.PieceType;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 /**
  * Main game window that hosts the entire UI.
@@ -17,6 +18,10 @@ public class ChessGameFrame extends JFrame {
     public final int CHESSBOARD_SIZE;
     private GameController gameController;
     private JLabel statusLabel;
+    private static final int BUTTON_X_OFFSET = 120;
+    private static final int BUTTON_WIDTH = 200;
+    private static final int BUTTON_HEIGHT = 60;
+    private final File defaultResourceDirectory = new File("src/main/resources/resource");
 
     public ChessGameFrame(int width, int height) {
         setTitle("KnightForge"); // Set the window title.
@@ -34,7 +39,7 @@ public class ChessGameFrame extends JFrame {
         addLabel();
         addHelloButton();
         addLoadButton();
-        addPromotionTestButton();
+        addSaveButton();
     }
 
 
@@ -70,32 +75,43 @@ public class ChessGameFrame extends JFrame {
     private void addHelloButton() {
         JButton button = new JButton("Undo");
         button.addActionListener((e) -> gameController.undo());
-        button.setLocation(HEIGTH, HEIGTH / 10 + 120);
-        button.setSize(200, 60);
+        button.setLocation(HEIGTH, HEIGTH / 10 + BUTTON_X_OFFSET);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
     }
 
     private void addLoadButton() {
         JButton button = new JButton("Load");
-        button.setLocation(HEIGTH, HEIGTH / 10 + 240);
-        button.setSize(200, 60);
+        button.setLocation(HEIGTH, HEIGTH / 10 + 210);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
 
         button.addActionListener(e -> {
-            System.out.println("Click load");
-            String path = JOptionPane.showInputDialog(this, "Input Path here");
-            gameController.loadGameFromFile(path);
+            JFileChooser chooser = createFileChooser("Load Game");
+            int result = chooser.showOpenDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            gameController.loadGameFromFile(chooser.getSelectedFile().getPath());
         });
     }
 
-    private void addPromotionTestButton() {
-        JButton button = new JButton("Promotion Test");
-        button.setLocation(HEIGTH, HEIGTH / 10 + 360);
-        button.setSize(200, 60);
-        button.setFont(new Font("Rockwell", Font.BOLD, 16));
-        button.addActionListener(e -> gameController.loadPromotionTestPosition());
+    private void addSaveButton() {
+        JButton button = new JButton("Save");
+        button.setLocation(HEIGTH, HEIGTH / 10 + 290);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
+        button.addActionListener(e -> {
+            JFileChooser chooser = createFileChooser("Save Game");
+            int result = chooser.showSaveDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            boolean success = gameController.saveGameToFile(chooser.getSelectedFile().getPath());
+            updateStatus(success ? "Game saved." : "Save failed.");
+        });
         add(button);
     }
 
@@ -132,6 +148,12 @@ public class ChessGameFrame extends JFrame {
 
     private void showGameOverDialog(String result) {
         JOptionPane.showMessageDialog(this, result, "Game Over", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private JFileChooser createFileChooser(String dialogTitle) {
+        JFileChooser chooser = new JFileChooser(defaultResourceDirectory);
+        chooser.setDialogTitle(dialogTitle);
+        return chooser;
     }
 
 }

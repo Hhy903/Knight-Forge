@@ -17,6 +17,7 @@ public class Move {
     private final boolean previousWhiteQueenSideCastleAvailable;
     private final boolean previousBlackKingSideCastleAvailable;
     private final boolean previousBlackQueenSideCastleAvailable;
+    private final int previousHalfmoveClock;
     private final ChessboardPoint rookFrom;
     private final ChessboardPoint rookTo;
     private PieceType promotionResult;
@@ -33,6 +34,7 @@ public class Move {
             boolean previousWhiteQueenSideCastleAvailable,
             boolean previousBlackKingSideCastleAvailable,
             boolean previousBlackQueenSideCastleAvailable,
+            int previousHalfmoveClock,
             ChessboardPoint rookFrom,
             ChessboardPoint rookTo
     ) {
@@ -47,6 +49,7 @@ public class Move {
         this.previousWhiteQueenSideCastleAvailable = previousWhiteQueenSideCastleAvailable;
         this.previousBlackKingSideCastleAvailable = previousBlackKingSideCastleAvailable;
         this.previousBlackQueenSideCastleAvailable = previousBlackQueenSideCastleAvailable;
+        this.previousHalfmoveClock = previousHalfmoveClock;
         this.rookFrom = rookFrom;
         this.rookTo = rookTo;
     }
@@ -93,6 +96,10 @@ public class Move {
 
     public boolean isPreviousBlackQueenSideCastleAvailable() {
         return previousBlackQueenSideCastleAvailable;
+    }
+
+    public int getPreviousHalfmoveClock() {
+        return previousHalfmoveClock;
     }
 
     public ChessboardPoint getRookFrom() {

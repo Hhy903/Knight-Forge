@@ -1,0 +1,12 @@
+CURRENT:BLACK
+CASTLE:KQkq
+EN_PASSANT:5,6
+HALFMOVE:0
+bR bN bB bQ bK bB bN bR
+bP bP bP bP -- bP bP bP
+-- -- -- -- -- -- -- --
+-- -- -- -- bP -- -- --
+-- -- -- -- -- -- wP --
+-- -- -- -- -- wP -- --
+wP wP wP wP wP -- -- wP
+wR wN wB wQ wK wB wN wR

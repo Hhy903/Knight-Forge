@@ -21,6 +21,7 @@ import java.util.function.Function;
  * Board component displayed in the game window.
  */
 public class Chessboard extends JComponent {
+    private static final int LABEL_MARGIN = 24;
     private final ChessComponent[][] chessComponents = new ChessComponent[BoardState.BOARD_SIZE][BoardState.BOARD_SIZE];
     private final GameSession gameSession = new GameSession(new BoardState());
     // All board squares share a single controller instance.
@@ -34,7 +35,7 @@ public class Chessboard extends JComponent {
 
     public Chessboard(int width, int height) {
         setLayout(null); // Use absolute layout.
-        setSize(width, height);
+        setSize(width + LABEL_MARGIN, height + LABEL_MARGIN);
         CHESS_SIZE = width / 8;
         System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
 
@@ -73,12 +74,14 @@ public class Chessboard extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        drawBoardLabels(g2);
     }
 
 
     private Point calculatePoint(int row, int col) {
-        return new Point(col * CHESS_SIZE, row * CHESS_SIZE);
+        return new Point(col * CHESS_SIZE + LABEL_MARGIN, row * CHESS_SIZE);
     }
 
     public void loadGame(List<String> chessData) {
@@ -86,6 +89,10 @@ public class Chessboard extends JComponent {
         refreshBoard();
         pushStatus();
         publishGameOverIfNeeded();
+    }
+
+    public List<String> saveGame() {
+        return gameSession.saveGame();
     }
 
     public void handleSquareClick(ChessboardPoint point) {
@@ -101,13 +108,6 @@ public class Chessboard extends JComponent {
         if (gameSession.undo()) {
             refreshBoard();
         }
-        pushStatus();
-        publishGameOverIfNeeded();
-    }
-
-    public void loadPromotionTestPosition() {
-        gameSession.loadPromotionTestPosition();
-        refreshBoard();
         pushStatus();
         publishGameOverIfNeeded();
     }
@@ -172,5 +172,25 @@ public class Chessboard extends JComponent {
             selectedType = PieceType.QUEEN;
         }
         gameSession.choosePromotion(selectedType);
+    }
+
+    private void drawBoardLabels(Graphics2D g2) {
+        g2.setColor(new Color(70, 70, 70));
+        g2.setFont(new Font("Rockwell", Font.BOLD, 14));
+        FontMetrics metrics = g2.getFontMetrics();
+
+        for (int col = 0; col < BoardState.BOARD_SIZE; col++) {
+            String file = String.valueOf((char) ('a' + col));
+            int x = LABEL_MARGIN + col * CHESS_SIZE + (CHESS_SIZE - metrics.stringWidth(file)) / 2;
+            int y = BoardState.BOARD_SIZE * CHESS_SIZE + metrics.getAscent() + 2;
+            g2.drawString(file, x, y);
+        }
+
+        for (int row = 0; row < BoardState.BOARD_SIZE; row++) {
+            String rank = String.valueOf(8 - row);
+            int x = (LABEL_MARGIN - metrics.stringWidth(rank)) / 2;
+            int y = row * CHESS_SIZE + (CHESS_SIZE + metrics.getAscent()) / 2 - 2;
+            g2.drawString(rank, x, y);
+        }
     }
 }

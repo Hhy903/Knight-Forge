@@ -138,18 +138,14 @@ public class GameSession {
         statusMessage = "New game started.";
     }
 
-    public void loadPromotionTestPosition() {
-        boardState.loadPromotionTestPosition();
-        clearTransientState();
-        gameResult = null;
-        phase = GamePhase.SELECTING_PIECE;
-        statusMessage = "Promotion test position loaded. Black to move.";
-    }
-
     public void loadGame(List<String> chessData) {
         enterLoadingPhase();
-        boardState.reset();
+        boardState.loadFromLines(chessData);
         finishLoading();
+    }
+
+    public List<String> saveGame() {
+        return boardState.serialize();
     }
 
     private boolean handleSelectingPiece(ChessboardPoint point) {
@@ -227,6 +223,16 @@ public class GameSession {
 
         if (boardState.isInsufficientMaterial()) {
             finishGame("Draw by insufficient material.");
+            return;
+        }
+
+        if (boardState.isThreefoldRepetition()) {
+            finishGame("Draw by threefold repetition.");
+            return;
+        }
+
+        if (boardState.getHalfmoveClock() >= 100) {
+            finishGame("Draw by 50-move rule.");
             return;
         }
 

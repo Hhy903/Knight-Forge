@@ -19,18 +19,23 @@ public class GameController {
             List<String> chessData = Files.readAllLines(Path.of(path));
             chessboard.loadGame(chessData);
             return chessData;
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public boolean saveGameToFile(String path) {
+        try {
+            Files.write(Path.of(path), chessboard.saveGame());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void undo() {
         chessboard.undo();
     }
-
-    public void loadPromotionTestPosition() {
-        chessboard.loadPromotionTestPosition();
-    }
-
 }
