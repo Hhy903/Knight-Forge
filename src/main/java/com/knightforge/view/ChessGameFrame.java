@@ -37,7 +37,7 @@ public class ChessGameFrame extends JFrame {
 
         addChessboard();
         addLabel();
-        addHelloButton();
+        addRedoButton();
         addLoadButton();
         addSaveButton();
     }
@@ -72,7 +72,7 @@ public class ChessGameFrame extends JFrame {
      * Adds a sample button that shows a greeting dialog.
      */
 
-    private void addHelloButton() {
+    private void addRedoButton() {
         JButton button = new JButton("Undo");
         button.addActionListener((e) -> gameController.undo());
         button.setLocation(HEIGTH, HEIGTH / 10 + BUTTON_X_OFFSET);

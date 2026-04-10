@@ -42,16 +42,16 @@ public class PieceChessComponent extends ChessComponent {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(skinManager.getPieceImage(piece.getType(), piece.getColor()), 0, 0, getWidth(), getHeight(), this);
+    protected void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+        graphics.drawImage(skinManager.getPieceImage(piece.getType(), piece.getColor()), 0, 0, getWidth(), getHeight(), this);
         if (isMoveHint()) {
-            g.setColor(new Color(46, 204, 113, 170));
-            g.fillOval(getWidth() / 3, getHeight() / 3, getWidth() / 3, getHeight() / 3);
+            graphics.setColor(new Color(46, 204, 113, 170));
+            graphics.fillOval(getWidth() / 3, getHeight() / 3, getWidth() / 3, getHeight() / 3);
         }
         if (isSelected()) {
-            g.setColor(Color.RED);
-            g.drawOval(0, 0, getWidth() - 1, getHeight() - 1);
+            graphics.setColor(Color.RED);
+            graphics.drawOval(0, 0, getWidth() - 1, getHeight() - 1);
         }
     }
 }

@@ -75,11 +75,11 @@ public class Chessboard extends JComponent implements GameSessionListener {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        drawBoardLabels(g2);
+    protected void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        drawBoardLabels(graphics2D);
     }
 
 
@@ -178,23 +178,23 @@ public class Chessboard extends JComponent implements GameSessionListener {
         gameSession.choosePromotion(selectedType);
     }
 
-    private void drawBoardLabels(Graphics2D g2) {
-        g2.setColor(new Color(70, 70, 70));
-        g2.setFont(new Font("Rockwell", Font.BOLD, 14));
-        FontMetrics metrics = g2.getFontMetrics();
+    private void drawBoardLabels(Graphics2D graphics2D) {
+        graphics2D.setColor(new Color(70, 70, 70));
+        graphics2D.setFont(new Font("Rockwell", Font.BOLD, 14));
+        FontMetrics metrics = graphics2D.getFontMetrics();
 
         for (int col = 0; col < BoardState.BOARD_SIZE; col++) {
             String file = String.valueOf((char) ('a' + col));
             int x = LABEL_MARGIN + col * CHESS_SIZE + (CHESS_SIZE - metrics.stringWidth(file)) / 2;
             int y = BoardState.BOARD_SIZE * CHESS_SIZE + metrics.getAscent() + 2;
-            g2.drawString(file, x, y);
+            graphics2D.drawString(file, x, y);
         }
 
         for (int row = 0; row < BoardState.BOARD_SIZE; row++) {
             String rank = String.valueOf(8 - row);
             int x = (LABEL_MARGIN - metrics.stringWidth(rank)) / 2;
             int y = row * CHESS_SIZE + (CHESS_SIZE + metrics.getAscent()) / 2 - 2;
-            g2.drawString(rank, x, y);
+            graphics2D.drawString(rank, x, y);
         }
     }
 }
