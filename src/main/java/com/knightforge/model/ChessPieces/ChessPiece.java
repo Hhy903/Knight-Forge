@@ -17,23 +17,27 @@ public abstract class ChessPiece {
     public ChessColor getColor() { return this.color; }
     public String getType() { return this.type; }
 
-    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition currentPosition, ChessPiece[][] chessboard, List<MoveNew> moveHistory) {
-        List<ChessboardPosition> legalMoves = new ArrayList<>();
+    public List<MoveNew> getPossibleMoves(ChessboardPosition currentPosition, Chessboard chessboard, List<MoveNew> moveHistory) {
+//        List<ChessboardPosition> legalMoves = new ArrayList<>();
+        List<MoveNew> legalMoves = new ArrayList<>();
 
-        for (int row = 0; row < chessboard.length; row++) {
-            for (int col = 0; col < chessboard[0].length; col++) {
+        for (int row = 0; row < chessboard.getHeight(); row++) {
+            for (int col = 0; col < chessboard.getLength(); col++) {
                 ChessboardPosition target = new ChessboardPosition(row, col);
                 if (isLegalMove(currentPosition, target, chessboard)) {
-                    legalMoves.add(target);
+//                    legalMoves.add(target);
+                    legalMoves.add(new MoveNew(currentPosition, target, chessboard.getPieceAtPosition(currentPosition), chessboard.getPieceAtPosition(target)));
                 }
             }
         }
 
+//        legalMoves.addAll(getPossibleSpecialMoves(currentPosition, chessboard, moveHistory));
         legalMoves.addAll(getPossibleSpecialMoves(currentPosition, chessboard, moveHistory));
+
         return legalMoves;
     }
 
-    public boolean isLegalMove(ChessboardPosition from, ChessboardPosition to, ChessPiece[][] chessboard) {
+    public boolean isLegalMove(ChessboardPosition from, ChessboardPosition to, Chessboard chessboard) {
         return (!from.equals(to) &&
                 movementDirectionIsValid(from, to) &&
                 pathIsClear(from, to, chessboard) &&
@@ -42,14 +46,14 @@ public abstract class ChessPiece {
 
     abstract protected boolean movementDirectionIsValid(ChessboardPosition from, ChessboardPosition to);
 
-    protected boolean pathIsClear(ChessboardPosition from, ChessboardPosition to, ChessPiece[][] chessboard) {
+    protected boolean pathIsClear(ChessboardPosition from, ChessboardPosition to, Chessboard chessboard) {
         int rowStep = Integer.signum(to.getX() - from.getX());
         int colStep = Integer.signum(to.getY() - from.getY());
         int row = from.getX() + rowStep;
         int col = from.getY() + colStep;
 
         while (row != to.getX() || col != to.getY()) {
-            if (chessboard[row][col] != null) {
+            if (chessboard.getPieceAtPosition(new ChessboardPosition(row, col)) != null) {
                 return false;
             }
             row += rowStep;
@@ -58,10 +62,10 @@ public abstract class ChessPiece {
         return true;
     }
 
-    protected boolean finalPositionIsValid(ChessboardPosition to, ChessPiece[][] chessboard) {
-        ChessPiece targetPiece = chessboard[to.getX()][to.getY()];
+    protected boolean finalPositionIsValid(ChessboardPosition to, Chessboard chessboard) {
+        ChessPiece targetPiece = chessboard.getPieceAtPosition(to);
         return targetPiece == null || targetPiece.getColor() != this.color;
     }
 
-    public List<ChessboardPosition> getPossibleSpecialMoves(ChessboardPosition position, ChessPiece[][] board, List<MoveNew> moveHistory){ return new ArrayList<>(); }
+    public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition position, Chessboard board, List<MoveNew> moveHistory){ return new ArrayList<>(); }
 }

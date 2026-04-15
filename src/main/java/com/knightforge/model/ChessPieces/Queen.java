@@ -13,12 +13,6 @@ public class Queen extends ChessPiece {
         super(color, PIECE_NAME);
     }
 
-//    @Override
-//    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition currentPosition, ChessPiece[][] chessboard) {
-//        List<ChessboardPosition> legalMoves = new ArrayList<>();
-//        return legalMoves;
-//    }
-
     @Override
     protected boolean movementDirectionIsValid(ChessboardPosition from, ChessboardPosition to) {
         return (from.getX() == to.getX() || from.getY() == to.getY()) ||

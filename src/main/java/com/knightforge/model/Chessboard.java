@@ -16,6 +16,9 @@ public class Chessboard {
         setupInitialPieces();
     }
 
+    public int getLength() { return board.length; }
+    public int getHeight() { return board[0].length; }
+
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
         List<ChessboardPosition> positions = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {
@@ -56,6 +59,9 @@ public class Chessboard {
 
     public ChessPiece getPieceAtPosition(ChessboardPosition position){
         return board[position.getX()][position.getY()];
+    }
+    public ChessPiece getPieceAtPosition(int row, int height){
+        return board[row][height];
     }
 
     private void setupInitialPieces() {

@@ -22,8 +22,12 @@ public class ChessGame {
 
     public void switchTurns() { whoseTurn = oppositeColor(whoseTurn); }
 
-    public List<ChessboardPosition> getAllPossibleMoves(ChessboardPosition currentPosition) {
+    public List<MoveNew> getAllPossibleMoves(ChessboardPosition currentPosition) {
         return moveHandler.getValidMoves(whoseTurn, currentPosition);
+    }
+
+    public boolean executeMove(MoveNew move) {
+        return moveHandler.executeMove(move);
     }
 
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {

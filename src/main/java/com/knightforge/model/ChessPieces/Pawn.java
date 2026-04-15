@@ -26,36 +26,43 @@ public class Pawn extends ChessPiece {
     }
 
     @Override
-    protected boolean finalPositionIsValid(ChessboardPosition to, ChessPiece[][] chessboard) {
-        ChessPiece targetPiece = chessboard[to.getX()][to.getY()];
+    protected boolean finalPositionIsValid(ChessboardPosition to, Chessboard chessboard) {
+        ChessPiece targetPiece = chessboard.getPieceAtPosition(to);
         return targetPiece == null;
     }
 
     // Adds special-case diagonal movement (attacking and En Passant)
     @Override
-    public List<ChessboardPosition> getPossibleSpecialMoves(ChessboardPosition position, ChessPiece[][] board, List<MoveNew> moveHistory) {
-        List<ChessboardPosition> positions = new ArrayList<>();
+    public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<MoveNew> moveHistory) {
+//        List<ChessboardPosition> positions = new ArrayList<>();
+        List<MoveNew> possibleMoves = new ArrayList<>();
         // Standard Attacking
         //Digonal 1
-        if (position.getY() + 1 < board[0].length &&
-                board[position.getX()+direction][position.getY()+1] != null &&
-                board[position.getX()+direction][position.getY()+1].getColor() != color) {
-            positions.add(new ChessboardPosition(position.getX(), position.getY()+1));
+        if (currentPosition.getY() + 1 < board.getLength() &&
+                board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1) != null &&
+                board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1).getColor() != color) {
+            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+1);
+//            positions.add(targetPosition);
+            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         //Diagonal 2
-        if (position.getY() - 1 >= 0  &&
-                board[position.getX()+direction][position.getY()-1] != null &&
-                board[position.getX()+direction][position.getY()-1].getColor() != color) {
-            positions.add(new ChessboardPosition(position.getX(), position.getY()-1));
+        if (currentPosition.getY() - 1 >= 0  &&
+                board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1) != null &&
+                board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1).getColor() != color) {
+            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()-1);
+//            positions.add(targetPosition);
+            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
-        if (moveHistory.isEmpty()) { return positions; }
+        if (moveHistory.isEmpty()) { return possibleMoves; }
         MoveNew opponentsLastMove = moveHistory.get(moveHistory.size()-1);
         // En Passant
         if (opponentsLastMove.wasTwoSquarePawnMove() &&
-                position.getX() == opponentsLastMove.getTo().getX() &&
-                Math.abs(position.getY() - opponentsLastMove.getTo().getY()) == 1){
-            positions.add(new ChessboardPosition(position.getX()+direction, opponentsLastMove.getTo().getY()));
+                currentPosition.getX() == opponentsLastMove.getTo().getX() &&
+                Math.abs(currentPosition.getY() - opponentsLastMove.getTo().getY()) == 1){
+            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, opponentsLastMove.getTo().getY());
+//            positions.add(targetPosition);
+            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()), true, false));
         }
-        return positions;
+        return possibleMoves;
     }
 }

@@ -1,6 +1,7 @@
 package com.knightforge.model.ChessPieces;
 
 import com.knightforge.model.ChessColor;
+import com.knightforge.model.Chessboard;
 import com.knightforge.model.ChessboardPosition;
 
 public class Knight extends ChessPiece {
@@ -17,7 +18,7 @@ public class Knight extends ChessPiece {
     }
 
     @Override
-    protected boolean pathIsClear(ChessboardPosition from, ChessboardPosition to, ChessPiece[][] chessboard) {
+    protected boolean pathIsClear(ChessboardPosition from, ChessboardPosition to, Chessboard chessboard) {
         return true;
     }
 }
