@@ -1,6 +1,7 @@
 package com.knightforge.model;
 
-import com.knightforge.view.ChessboardPoint;
+import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.ChessPiece;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +18,7 @@ public class BoardState {
     private final ChessPiece[][] board = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
     private ChessColor currentColor = ChessColor.BLACK;
-    private ChessboardPoint enPassantTarget;
+    private ChessboardPosition enPassantTarget;
     private boolean whiteKingSideCastleAvailable;
     private boolean whiteQueenSideCastleAvailable;
     private boolean blackKingSideCastleAvailable;
@@ -137,7 +138,7 @@ public class BoardState {
         resetPositionTracking();
     }
 
-    public ChessPiece getPieceAt(ChessboardPoint point) {
+    public ChessPiece getPieceAt(ChessboardPosition point) {
         return board[point.getX()][point.getY()];
     }
 
@@ -145,7 +146,7 @@ public class BoardState {
         return board[row][col];
     }
 
-    public void setPieceAt(ChessboardPoint point, ChessPiece piece) {
+    public void setPieceAt(ChessboardPosition point, ChessPiece piece) {
         board[point.getX()][point.getY()] = piece;
     }
 
@@ -157,7 +158,7 @@ public class BoardState {
         return Collections.unmodifiableList(moveHistory);
     }
 
-    public ChessboardPoint getEnPassantTarget() {
+    public ChessboardPosition getEnPassantTarget() {
         return enPassantTarget;
     }
 
@@ -169,28 +170,28 @@ public class BoardState {
         return positionCounts.getOrDefault(buildPositionKey(), 0) >= 3;
     }
 
-    public boolean isCurrentPlayerPiece(ChessboardPoint point) {
+    public boolean isCurrentPlayerPiece(ChessboardPosition point) {
         ChessPiece piece = getPieceAt(point);
         return piece != null && piece.getColor() == currentColor;
     }
 
-    public boolean isLegalMove(ChessboardPoint from, ChessboardPoint to) {
+    public boolean isLegalMove(ChessboardPosition from, ChessboardPosition to) {
         if (!isPseudoLegalMove(from, to)) {
             return false;
         }
         return !wouldLeaveKingInCheck(from, to);
     }
 
-    public List<ChessboardPoint> getLegalMovesFrom(ChessboardPoint from) {
+    public List<ChessboardPosition> getLegalMovesFrom(ChessboardPosition from) {
         ChessPiece piece = getPieceAt(from);
         if (piece == null || piece.getColor() != currentColor) {
             return List.of();
         }
 
-        List<ChessboardPoint> legalMoves = new ArrayList<>();
+        List<ChessboardPosition> legalMoves = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                ChessboardPoint target = new ChessboardPoint(row, col);
+                ChessboardPosition target = new ChessboardPosition(row, col);
                 if (isLegalMove(from, target)) {
                     legalMoves.add(target);
                 }
@@ -200,7 +201,7 @@ public class BoardState {
     }
 
     public boolean isInCheck(ChessColor color) {
-        ChessboardPoint kingPoint = findKing(color);
+        ChessboardPosition kingPoint = findKing(color);
         return kingPoint != null && isSquareUnderAttack(kingPoint, oppositeColor(color));
     }
 
@@ -214,7 +215,7 @@ public class BoardState {
                     if (piece == null || piece.getColor() != color) {
                         continue;
                     }
-                    if (!getLegalMovesFrom(new ChessboardPoint(row, col)).isEmpty()) {
+                    if (!getLegalMovesFrom(new ChessboardPosition(row, col)).isEmpty()) {
                         return true;
                     }
                 }
@@ -227,7 +228,7 @@ public class BoardState {
 
     public boolean isInsufficientMaterial() {
         List<ChessPiece> activePieces = new ArrayList<>();
-        List<ChessboardPoint> bishopSquares = new ArrayList<>();
+        List<ChessboardPosition> bishopSquares = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 ChessPiece piece = board[row][col];
@@ -236,7 +237,7 @@ public class BoardState {
                 }
                 activePieces.add(piece);
                 if (piece.getType() == PieceType.BISHOP) {
-                    bishopSquares.add(new ChessboardPoint(row, col));
+                    bishopSquares.add(new ChessboardPosition(row, col));
                 }
             }
         }
@@ -267,26 +268,26 @@ public class BoardState {
         return false;
     }
 
-    public ChessboardPoint findKing(ChessColor color) {
+    public ChessboardPosition findKing(ChessColor color) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 ChessPiece piece = board[row][col];
                 if (piece != null && piece.getColor() == color && piece.getType() == PieceType.KING) {
-                    return new ChessboardPoint(row, col);
+                    return new ChessboardPosition(row, col);
                 }
             }
         }
         return null;
     }
 
-    public boolean isSquareUnderAttack(ChessboardPoint target, ChessColor attackerColor) {
+    public boolean isSquareUnderAttack(ChessboardPosition target, ChessColor attackerColor) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 ChessPiece piece = board[row][col];
                 if (piece == null || piece.getColor() != attackerColor) {
                     continue;
                 }
-                if (canAttack(new ChessboardPoint(row, col), target, piece)) {
+                if (canAttack(new ChessboardPosition(row, col), target, piece)) {
                     return true;
                 }
             }
@@ -294,7 +295,7 @@ public class BoardState {
         return false;
     }
 
-    private boolean isPseudoLegalMove(ChessboardPoint from, ChessboardPoint to) {
+    private boolean isPseudoLegalMove(ChessboardPosition from, ChessboardPosition to) {
         if (!isInsideBoard(from) || !isInsideBoard(to) || from.equals(to)) {
             return false;
         }
@@ -319,20 +320,20 @@ public class BoardState {
         };
     }
 
-    public Move applyMove(ChessboardPoint from, ChessboardPoint to) {
+    public Move applyMove(ChessboardPosition from, ChessboardPosition to) {
         if (!isLegalMove(from, to)) {
             return null;
         }
 
         ChessPiece movedPiece = getPieceAt(from);
-        ChessboardPoint previousEnPassantTarget = copyPoint(enPassantTarget);
+        ChessboardPosition previousEnPassantTarget = copyPoint(enPassantTarget);
         ChessPiece capturedPiece = getPieceAt(to);
-        ChessboardPoint capturedPiecePoint = copyPoint(to);
-        ChessboardPoint rookFrom = null;
-        ChessboardPoint rookTo = null;
+        ChessboardPosition capturedPiecePoint = copyPoint(to);
+        ChessboardPosition rookFrom = null;
+        ChessboardPosition rookTo = null;
 
         if (isEnPassantCapture(from, to, movedPiece)) {
-            capturedPiecePoint = new ChessboardPoint(from.getX(), to.getY());
+            capturedPiecePoint = new ChessboardPosition(from.getX(), to.getY());
             capturedPiece = getPieceAt(capturedPiecePoint);
             board[capturedPiecePoint.getX()][capturedPiecePoint.getY()] = null;
         }
@@ -340,8 +341,8 @@ public class BoardState {
         setPieceAt(to, movedPiece);
         setPieceAt(from, null);
         if (isCastlingMove(from, to, movedPiece)) {
-            rookFrom = new ChessboardPoint(from.getX(), to.getY() > from.getY() ? 7 : 0);
-            rookTo = new ChessboardPoint(from.getX(), to.getY() > from.getY() ? 5 : 3);
+            rookFrom = new ChessboardPosition(from.getX(), to.getY() > from.getY() ? 7 : 0);
+            rookTo = new ChessboardPosition(from.getX(), to.getY() > from.getY() ? 5 : 3);
             board[rookTo.getX()][rookTo.getY()] = board[rookFrom.getX()][rookFrom.getY()];
             board[rookFrom.getX()][rookFrom.getY()] = null;
         }
@@ -380,7 +381,7 @@ public class BoardState {
         return targetRow == 0 || targetRow == BOARD_SIZE - 1;
     }
 
-    public void promotePawn(ChessboardPoint point, PieceType targetType) {
+    public void promotePawn(ChessboardPosition point, PieceType targetType) {
         ChessPiece piece = getPieceAt(point);
         if (piece == null || piece.getType() != PieceType.PAWN) {
             return;
@@ -418,20 +419,20 @@ public class BoardState {
         return move;
     }
 
-    private boolean wouldLeaveKingInCheck(ChessboardPoint from, ChessboardPoint to) {
+    private boolean wouldLeaveKingInCheck(ChessboardPosition from, ChessboardPosition to) {
         ChessPiece movingPiece = getPieceAt(from);
         ChessPiece capturedPiece = getPieceAt(to);
-        ChessboardPoint capturedPoint = copyPoint(to);
+        ChessboardPosition capturedPoint = copyPoint(to);
         boolean enPassantCapture = isEnPassantCapture(from, to, movingPiece);
         if (enPassantCapture) {
-            capturedPoint = new ChessboardPoint(from.getX(), to.getY());
+            capturedPoint = new ChessboardPosition(from.getX(), to.getY());
             capturedPiece = getPieceAt(capturedPoint);
             board[capturedPoint.getX()][capturedPoint.getY()] = null;
         }
         board[to.getX()][to.getY()] = movingPiece;
         board[from.getX()][from.getY()] = null;
 
-        ChessboardPoint kingPoint = movingPiece.getType() == PieceType.KING ? to : findKing(movingPiece.getColor());
+        ChessboardPosition kingPoint = movingPiece.getType() == PieceType.KING ? to : findKing(movingPiece.getColor());
         boolean inCheck = kingPoint == null || isSquareUnderAttack(kingPoint, oppositeColor(movingPiece.getColor()));
 
         board[from.getX()][from.getY()] = movingPiece;
@@ -442,7 +443,7 @@ public class BoardState {
         return inCheck;
     }
 
-    private boolean canAttack(ChessboardPoint from, ChessboardPoint to, ChessPiece piece) {
+    private boolean canAttack(ChessboardPosition from, ChessboardPosition to, ChessPiece piece) {
         if (from.equals(to)) {
             return false;
         }
@@ -461,34 +462,34 @@ public class BoardState {
         };
     }
 
-    private boolean canPawnAttack(ChessboardPoint from, ChessboardPoint to, ChessColor color) {
+    private boolean canPawnAttack(ChessboardPosition from, ChessboardPosition to, ChessColor color) {
         int direction = color == ChessColor.BLACK ? 1 : -1;
         int dx = to.getX() - from.getX();
         int dy = Math.abs(to.getY() - from.getY());
         return dx == direction && dy == 1;
     }
 
-    private boolean canRookMove(ChessboardPoint from, ChessboardPoint to) {
+    private boolean canRookMove(ChessboardPosition from, ChessboardPosition to) {
         return (from.getX() == to.getX() || from.getY() == to.getY()) && isPathClear(from, to);
     }
 
-    private boolean canBishopMove(ChessboardPoint from, ChessboardPoint to) {
+    private boolean canBishopMove(ChessboardPosition from, ChessboardPosition to) {
         return Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()) && isPathClear(from, to);
     }
 
-    private boolean canKnightMove(ChessboardPoint from, ChessboardPoint to) {
+    private boolean canKnightMove(ChessboardPosition from, ChessboardPosition to) {
         int dx = Math.abs(from.getX() - to.getX());
         int dy = Math.abs(from.getY() - to.getY());
         return dx * dy == 2;
     }
 
-    private boolean canKingMove(ChessboardPoint from, ChessboardPoint to) {
+    private boolean canKingMove(ChessboardPosition from, ChessboardPosition to) {
         int dx = Math.abs(from.getX() - to.getX());
         int dy = Math.abs(from.getY() - to.getY());
         return (dx <= 1 && dy <= 1) || canCastle(from, to);
     }
 
-    private boolean canPawnMove(ChessboardPoint from, ChessboardPoint to, ChessColor color) {
+    private boolean canPawnMove(ChessboardPosition from, ChessboardPosition to, ChessColor color) {
         int direction = color == ChessColor.BLACK ? 1 : -1;
         int startRow = color == ChessColor.BLACK ? 1 : 6;
         int dx = to.getX() - from.getX();
@@ -516,7 +517,7 @@ public class BoardState {
         return dy == 1 && dx == direction && targetPiece == null && enPassantTarget != null && enPassantTarget.equals(to);
     }
 
-    private boolean isPathClear(ChessboardPoint from, ChessboardPoint to) {
+    private boolean isPathClear(ChessboardPosition from, ChessboardPosition to) {
         int rowStep = Integer.compare(to.getX(), from.getX());
         int colStep = Integer.compare(to.getY(), from.getY());
         int row = from.getX() + rowStep;
@@ -532,7 +533,7 @@ public class BoardState {
         return true;
     }
 
-    private boolean isInsideBoard(ChessboardPoint point) {
+    private boolean isInsideBoard(ChessboardPosition point) {
         return point.getX() >= 0 && point.getX() < BOARD_SIZE && point.getY() >= 0 && point.getY() < BOARD_SIZE;
     }
 
@@ -540,7 +541,7 @@ public class BoardState {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
     }
 
-    private boolean isEnPassantCapture(ChessboardPoint from, ChessboardPoint to, ChessPiece movingPiece) {
+    private boolean isEnPassantCapture(ChessboardPosition from, ChessboardPosition to, ChessPiece movingPiece) {
         return movingPiece != null
                 && movingPiece.getType() == PieceType.PAWN
                 && enPassantTarget != null
@@ -549,10 +550,10 @@ public class BoardState {
                 && from.getY() != to.getY();
     }
 
-    private void updateEnPassantTarget(ChessboardPoint from, ChessboardPoint to, ChessPiece movedPiece) {
+    private void updateEnPassantTarget(ChessboardPosition from, ChessboardPosition to, ChessPiece movedPiece) {
         enPassantTarget = null;
         if (movedPiece.getType() == PieceType.PAWN && Math.abs(from.getX() - to.getX()) == 2) {
-            enPassantTarget = new ChessboardPoint((from.getX() + to.getX()) / 2, from.getY());
+            enPassantTarget = new ChessboardPosition((from.getX() + to.getX()) / 2, from.getY());
         }
     }
 
@@ -565,11 +566,11 @@ public class BoardState {
     }
 
     private void updateCastleAvailability(
-            ChessboardPoint from,
-            ChessboardPoint to,
+            ChessboardPosition from,
+            ChessboardPosition to,
             ChessPiece movedPiece,
             ChessPiece capturedPiece,
-            ChessboardPoint capturedPiecePoint
+            ChessboardPosition capturedPiecePoint
     ) {
         if (movedPiece.getType() == PieceType.KING) {
             if (movedPiece.getColor() == ChessColor.WHITE) {
@@ -590,7 +591,7 @@ public class BoardState {
         }
     }
 
-    private void disableCastleByRookSquare(ChessboardPoint point, ChessColor color) {
+    private void disableCastleByRookSquare(ChessboardPosition point, ChessColor color) {
         if (color == ChessColor.WHITE) {
             if (point.getX() == 7 && point.getY() == 0) {
                 whiteQueenSideCastleAvailable = false;
@@ -606,7 +607,7 @@ public class BoardState {
         }
     }
 
-    private boolean canCastle(ChessboardPoint from, ChessboardPoint to) {
+    private boolean canCastle(ChessboardPosition from, ChessboardPosition to) {
         ChessPiece king = getPieceAt(from);
         if (king == null || king.getType() != PieceType.KING || from.getX() != to.getX()) {
             return false;
@@ -623,7 +624,7 @@ public class BoardState {
             return false;
         }
 
-        ChessboardPoint rookPoint = new ChessboardPoint(row, kingSide ? 7 : 0);
+        ChessboardPosition rookPoint = new ChessboardPosition(row, kingSide ? 7 : 0);
         ChessPiece rook = getPieceAt(rookPoint);
         if (rook == null || rook.getType() != PieceType.ROOK || rook.getColor() != king.getColor()) {
             return false;
@@ -646,7 +647,7 @@ public class BoardState {
 
         int step = kingSide ? 1 : -1;
         for (int offset = 1; offset <= 2; offset++) {
-            ChessboardPoint pathPoint = new ChessboardPoint(row, from.getY() + offset * step);
+            ChessboardPosition pathPoint = new ChessboardPosition(row, from.getY() + offset * step);
             if (isSquareUnderAttack(pathPoint, oppositeColor(king.getColor()))) {
                 return false;
             }
@@ -654,7 +655,7 @@ public class BoardState {
         return true;
     }
 
-    private boolean isCastlingMove(ChessboardPoint from, ChessboardPoint to, ChessPiece movedPiece) {
+    private boolean isCastlingMove(ChessboardPosition from, ChessboardPosition to, ChessPiece movedPiece) {
         return movedPiece != null
                 && movedPiece.getType() == PieceType.KING
                 && from.getX() == to.getX()
@@ -669,8 +670,8 @@ public class BoardState {
         };
     }
 
-    private ChessboardPoint copyPoint(ChessboardPoint point) {
-        return point == null ? null : new ChessboardPoint(point.getX(), point.getY());
+    private ChessboardPosition copyPoint(ChessboardPosition point) {
+        return point == null ? null : new ChessboardPosition(point.getX(), point.getY());
     }
 
     private void resetPositionTracking() {
@@ -690,7 +691,7 @@ public class BoardState {
             }
         }
         initializeReplayBoard(replayBoard);
-        ChessboardPoint replayEnPassant = null;
+        ChessboardPosition replayEnPassant = null;
         boolean replayWhiteKingSide = true;
         boolean replayWhiteQueenSide = true;
         boolean replayBlackKingSide = true;
@@ -719,7 +720,7 @@ public class BoardState {
             replayEnPassant = null;
             if (movedPiece != null && movedPiece.getType() == PieceType.PAWN
                     && Math.abs(move.getFrom().getX() - move.getTo().getX()) == 2) {
-                replayEnPassant = new ChessboardPoint((move.getFrom().getX() + move.getTo().getX()) / 2, move.getFrom().getY());
+                replayEnPassant = new ChessboardPosition((move.getFrom().getX() + move.getTo().getX()) / 2, move.getFrom().getY());
             }
 
             if (movedPiece != null) {
@@ -797,7 +798,7 @@ public class BoardState {
     private String buildPositionKey(
             ChessPiece[][] boardState,
             ChessColor colorToMove,
-            ChessboardPoint enPassant,
+            ChessboardPosition enPassant,
             boolean whiteKingSide,
             boolean whiteQueenSide,
             boolean blackKingSide,
@@ -860,11 +861,11 @@ public class BoardState {
         blackQueenSideCastleAvailable = rights.contains("q");
     }
 
-    private String pointToString(ChessboardPoint point) {
+    private String pointToString(ChessboardPosition point) {
         return point == null ? "-" : point.getX() + "," + point.getY();
     }
 
-    private ChessboardPoint parsePoint(String value) {
+    private ChessboardPosition parsePoint(String value) {
         if ("-".equals(value)) {
             return null;
         }
@@ -872,7 +873,7 @@ public class BoardState {
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid point: " + value);
         }
-        return new ChessboardPoint(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+        return new ChessboardPosition(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
     }
 
     private String pieceToCode(ChessPiece piece) {

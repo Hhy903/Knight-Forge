@@ -1,11 +1,8 @@
 package com.knightforge.view;
 
 import com.knightforge.controller.ClickController;
-import com.knightforge.model.BoardState;
-import com.knightforge.model.ChessColor;
+import com.knightforge.model.*;
 import com.knightforge.model.ChessPiece;
-import com.knightforge.model.ChessComponent;
-import com.knightforge.model.PieceType;
 
 import java.awt.*;
 
@@ -16,8 +13,8 @@ public class PieceChessComponent extends ChessComponent {
     private final ChessPiece piece;
     private final SkinManager skinManager = SkinManager.getInstance();
 
-    public PieceChessComponent(ChessboardPoint chessboardPoint, Point location, ChessPiece piece, ClickController listener, int size) {
-        super(chessboardPoint, location, listener, size);
+    public PieceChessComponent(ChessboardPosition chessboardPosition, Point location, ChessPiece piece, ClickController listener, int size) {
+        super(chessboardPosition, location, listener, size);
         this.piece = piece;
     }
 
@@ -31,7 +28,7 @@ public class PieceChessComponent extends ChessComponent {
     }
 
     @Override
-    public boolean canMoveTo(BoardState boardState, ChessboardPoint destination) {
+    public boolean canMoveTo(BoardState boardState, ChessboardPosition destination) {
         return boardState.isLegalMove(getChessboardPoint(), destination);
     }
 

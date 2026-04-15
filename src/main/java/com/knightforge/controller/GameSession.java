@@ -4,7 +4,7 @@ import com.knightforge.model.BoardState;
 import com.knightforge.model.ChessColor;
 import com.knightforge.model.Move;
 import com.knightforge.model.PieceType;
-import com.knightforge.view.ChessboardPoint;
+import com.knightforge.model.ChessboardPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.HashSet;
 public class GameSession {
     private final BoardState boardState;
     private GamePhase phase = GamePhase.SELECTING_PIECE;
-    private ChessboardPoint selectedPoint;
-    private ChessboardPoint promotionPoint;
+    private ChessboardPosition selectedPoint;
+    private ChessboardPosition promotionPoint;
     private Move lastMove;
     private String gameResult;
     private String statusMessage;
@@ -33,11 +33,11 @@ public class GameSession {
         return phase;
     }
 
-    public ChessboardPoint getSelectedPoint() {
+    public ChessboardPosition getSelectedPoint() {
         return selectedPoint;
     }
 
-    public ChessboardPoint getPromotionPoint() {
+    public ChessboardPosition getPromotionPoint() {
         return promotionPoint;
     }
 
@@ -61,7 +61,7 @@ public class GameSession {
         return boardState;
     }
 
-    public Set<ChessboardPoint> getHighlightedTargets() {
+    public Set<ChessboardPosition> getHighlightedTargets() {
         if (phase != GamePhase.SELECTING_TARGET || selectedPoint == null) {
             return Set.of();
         }
@@ -72,7 +72,7 @@ public class GameSession {
         listeners.add(listener);
     }
 
-    public boolean handleSquareClick(ChessboardPoint point) {
+    public boolean handleSquareClick(ChessboardPosition point) {
         boolean changed = switch (phase) {
             case SELECTING_PIECE -> handleSelectingPiece(point);
             case SELECTING_TARGET -> handleSelectingTarget(point);
@@ -163,7 +163,7 @@ public class GameSession {
         return boardState.serialize();
     }
 
-    private boolean handleSelectingPiece(ChessboardPoint point) {
+    private boolean handleSelectingPiece(ChessboardPosition point) {
         if (!boardState.isCurrentPlayerPiece(point)) {
             statusMessage = "Select one of the current player's pieces.";
             return false;
@@ -174,7 +174,7 @@ public class GameSession {
         return true;
     }
 
-    private boolean handleSelectingTarget(ChessboardPoint point) {
+    private boolean handleSelectingTarget(ChessboardPosition point) {
         if (selectedPoint == null) {
             phase = GamePhase.SELECTING_PIECE;
             statusMessage = "Selection was cleared.";

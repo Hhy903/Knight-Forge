@@ -1,42 +1,42 @@
 package com.knightforge.model;
 
-import com.knightforge.view.ChessboardPoint;
+import com.knightforge.model.ChessPiece;
 
 /**
  * Records one move on the board for future undo/save features.
  */
 public class Move {
-    private final ChessboardPoint from;
-    private final ChessboardPoint to;
+    private final ChessboardPosition from;
+    private final ChessboardPosition to;
     private final ChessPiece movedPiece;
     private final ChessPiece capturedPiece;
-    private final ChessboardPoint capturedPiecePoint;
-    private final ChessboardPoint previousEnPassantTarget;
+    private final ChessboardPosition capturedPiecePoint;
+    private final ChessboardPosition previousEnPassantTarget;
     private final ChessColor previousCurrentColor;
     private final boolean previousWhiteKingSideCastleAvailable;
     private final boolean previousWhiteQueenSideCastleAvailable;
     private final boolean previousBlackKingSideCastleAvailable;
     private final boolean previousBlackQueenSideCastleAvailable;
     private final int previousHalfmoveClock;
-    private final ChessboardPoint rookFrom;
-    private final ChessboardPoint rookTo;
+    private final ChessboardPosition rookFrom;
+    private final ChessboardPosition rookTo;
     private PieceType promotionResult;
 
     public Move(
-            ChessboardPoint from,
-            ChessboardPoint to,
+            ChessboardPosition from,
+            ChessboardPosition to,
             ChessPiece movedPiece,
             ChessPiece capturedPiece,
-            ChessboardPoint capturedPiecePoint,
-            ChessboardPoint previousEnPassantTarget,
+            ChessboardPosition capturedPiecePoint,
+            ChessboardPosition previousEnPassantTarget,
             ChessColor previousCurrentColor,
             boolean previousWhiteKingSideCastleAvailable,
             boolean previousWhiteQueenSideCastleAvailable,
             boolean previousBlackKingSideCastleAvailable,
             boolean previousBlackQueenSideCastleAvailable,
             int previousHalfmoveClock,
-            ChessboardPoint rookFrom,
-            ChessboardPoint rookTo
+            ChessboardPosition rookFrom,
+            ChessboardPosition rookTo
     ) {
         this.from = from;
         this.to = to;
@@ -54,11 +54,11 @@ public class Move {
         this.rookTo = rookTo;
     }
 
-    public ChessboardPoint getFrom() {
+    public ChessboardPosition getFrom() {
         return from;
     }
 
-    public ChessboardPoint getTo() {
+    public ChessboardPosition getTo() {
         return to;
     }
 
@@ -70,11 +70,11 @@ public class Move {
         return capturedPiece;
     }
 
-    public ChessboardPoint getCapturedPiecePoint() {
+    public ChessboardPosition getCapturedPiecePoint() {
         return capturedPiecePoint;
     }
 
-    public ChessboardPoint getPreviousEnPassantTarget() {
+    public ChessboardPosition getPreviousEnPassantTarget() {
         return previousEnPassantTarget;
     }
 
@@ -102,11 +102,11 @@ public class Move {
         return previousHalfmoveClock;
     }
 
-    public ChessboardPoint getRookFrom() {
+    public ChessboardPosition getRookFrom() {
         return rookFrom;
     }
 
-    public ChessboardPoint getRookTo() {
+    public ChessboardPosition getRookTo() {
         return rookTo;
     }
 

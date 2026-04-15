@@ -1,7 +1,6 @@
 package com.knightforge.model;
 
 import com.knightforge.controller.ClickController;
-import com.knightforge.view.ChessboardPoint;
 
 import java.awt.*;
 import java.io.IOException;
@@ -11,8 +10,8 @@ import java.io.IOException;
  */
 public class EmptySlotComponent extends ChessComponent {
 
-    public EmptySlotComponent(ChessboardPoint chessboardPoint, Point location, ClickController listener, int size) {
-        super(chessboardPoint, location, listener, size);
+    public EmptySlotComponent(ChessboardPosition chessboardPosition, Point location, ClickController listener, int size) {
+        super(chessboardPosition, location, listener, size);
     }
 
     @Override
@@ -21,7 +20,7 @@ public class EmptySlotComponent extends ChessComponent {
     }
 
     @Override
-    public boolean canMoveTo(BoardState boardState, ChessboardPoint destination) {
+    public boolean canMoveTo(BoardState boardState, ChessboardPosition destination) {
         return false;
     }
 

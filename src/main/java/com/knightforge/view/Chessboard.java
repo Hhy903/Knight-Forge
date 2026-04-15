@@ -5,11 +5,7 @@ import com.knightforge.controller.ClickController;
 import com.knightforge.controller.GameSessionEvent;
 import com.knightforge.controller.GameSessionListener;
 import com.knightforge.controller.GameSession;
-import com.knightforge.model.BoardState;
-import com.knightforge.model.ChessColor;
-import com.knightforge.model.ChessPiece;
-import com.knightforge.model.ChessComponent;
-import com.knightforge.model.PieceType;
+import com.knightforge.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -95,7 +91,7 @@ public class Chessboard extends JComponent implements GameSessionListener {
         return gameSession.saveGame();
     }
 
-    public void handleSquareClick(ChessboardPoint point) {
+    public void handleSquareClick(ChessboardPosition point) {
         if (gameSession.handleSquareClick(point)) {
             handlePromotionIfNeeded();
         }
@@ -117,9 +113,9 @@ public class Chessboard extends JComponent implements GameSessionListener {
     }
 
     private void refreshSquare(int row, int col) {
-        ChessboardPoint point = new ChessboardPoint(row, col);
+        ChessboardPosition point = new ChessboardPosition(row, col);
         ChessPiece piece = gameSession.getBoardState().getPieceAt(point);
-        Set<ChessboardPoint> highlightedTargets = gameSession.getHighlightedTargets();
+        Set<ChessboardPosition> highlightedTargets = gameSession.getHighlightedTargets();
         ChessComponent currentComponent = chessComponents[row][col];
         if (currentComponent != null) {
             remove(currentComponent);

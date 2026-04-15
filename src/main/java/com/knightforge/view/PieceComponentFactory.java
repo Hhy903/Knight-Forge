@@ -3,6 +3,7 @@ package com.knightforge.view;
 import com.knightforge.controller.ClickController;
 import com.knightforge.model.ChessComponent;
 import com.knightforge.model.ChessPiece;
+import com.knightforge.model.ChessboardPosition;
 import com.knightforge.model.EmptySlotComponent;
 
 import java.awt.*;
@@ -12,7 +13,7 @@ import java.awt.*;
  */
 public class PieceComponentFactory {
     public ChessComponent createComponent(
-            ChessboardPoint point,
+            ChessboardPosition point,
             Point location,
             ChessPiece piece,
             ClickController clickController,

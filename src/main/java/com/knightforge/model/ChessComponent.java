@@ -1,7 +1,6 @@
 package com.knightforge.model;
 
 import com.knightforge.controller.ClickController;
-import com.knightforge.view.ChessboardPoint;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,25 +29,25 @@ public abstract class ChessComponent extends JComponent {
      * `chessColor` stores the owner color.
      * `selected` marks whether the square is currently highlighted.
      */
-    private ChessboardPoint chessboardPoint;
+    private ChessboardPosition chessboardPosition;
     private boolean selected;
     private boolean moveHint;
 
-    protected ChessComponent(ChessboardPoint chessboardPoint, Point location, ClickController clickController, int size) {
+    protected ChessComponent(ChessboardPosition chessboardPosition, Point location, ClickController clickController, int size) {
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         setLocation(location);
         setSize(size, size);
-        this.chessboardPoint = chessboardPoint;
+        this.chessboardPosition = chessboardPosition;
         this.selected = false;
         this.clickController = clickController;
     }
 
-    public ChessboardPoint getChessboardPoint() {
-        return chessboardPoint;
+    public ChessboardPosition getChessboardPoint() {
+        return chessboardPosition;
     }
 
-    public void setChessboardPoint(ChessboardPoint chessboardPoint) {
-        this.chessboardPoint = chessboardPoint;
+    public void setChessboardPoint(ChessboardPosition chessboardPosition) {
+        this.chessboardPosition = chessboardPosition;
     }
 
     public abstract ChessColor getChessColor();
@@ -73,11 +72,11 @@ public abstract class ChessComponent extends JComponent {
      * @param another the other square to swap with during a move
      */
     public void swapLocation(ChessComponent another) {
-        ChessboardPoint chessboardPoint1 = getChessboardPoint(), chessboardPoint2 = another.getChessboardPoint();
+        ChessboardPosition chessboardPosition1 = getChessboardPoint(), chessboardPosition2 = another.getChessboardPoint();
         Point point1 = getLocation(), point2 = another.getLocation();
-        setChessboardPoint(chessboardPoint2);
+        setChessboardPoint(chessboardPosition2);
         setLocation(point2);
-        another.setChessboardPoint(chessboardPoint1);
+        another.setChessboardPoint(chessboardPosition1);
         another.setLocation(point1);
     }
 
@@ -89,7 +88,7 @@ public abstract class ChessComponent extends JComponent {
         super.processMouseEvent(e);
 
         if (e.getID() == MouseEvent.MOUSE_PRESSED) {
-            System.out.printf("Click [%d,%d]\n", chessboardPoint.getX(), chessboardPoint.getY());
+            System.out.printf("Click [%d,%d]\n", chessboardPosition.getX(), chessboardPosition.getY());
             clickController.onClick(this);
         }
     }
@@ -99,7 +98,7 @@ public abstract class ChessComponent extends JComponent {
      * @param destination the target square, such as (0, 0) or (0, 7)
      * @return whether this piece can legally move from its current position to the target
      */
-    public abstract boolean canMoveTo(BoardState boardState, ChessboardPoint destination);
+    public abstract boolean canMoveTo(BoardState boardState, ChessboardPosition destination);
 
     /**
      * Loads static resources such as piece images.
@@ -111,7 +110,7 @@ public abstract class ChessComponent extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Color squareColor = BACKGROUND_COLORS[(chessboardPoint.getX() + chessboardPoint.getY()) % 2];
+        Color squareColor = BACKGROUND_COLORS[(chessboardPosition.getX() + chessboardPosition.getY()) % 2];
         g.setColor(squareColor);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
     }

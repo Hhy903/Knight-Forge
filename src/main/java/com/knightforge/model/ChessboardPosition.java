@@ -1,14 +1,14 @@
-package com.knightforge.view;
+package com.knightforge.model;
 
 import java.util.Objects;
 
 /**
  * Represents a square on the chessboard, such as (0, 0) or (7, 7).
  */
-public class ChessboardPoint {
+public class ChessboardPosition {
     private int x, y;
 
-    public ChessboardPoint(int x, int y) {
+    public ChessboardPosition(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -26,7 +26,7 @@ public class ChessboardPoint {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ChessboardPoint that)) {
+        if (!(o instanceof ChessboardPosition that)) {
             return false;
         }
         return x == that.x && y == that.y;
