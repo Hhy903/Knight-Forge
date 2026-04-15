@@ -245,4 +245,29 @@ public class KingTest {
                 .orElse(null);
         assertNull(castleKingside);
     }
+
+    @Test
+    void testCannotCastleQueensideWithPieceInWay() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "wR wN -- -- wK -- -- wR"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+
+        // Should not be able to castle queenside (knight is blocking the path)
+        MoveNew castleQueenside = kingMoves.stream()
+                .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 2)
+                .findFirst()
+                .orElse(null);
+        assertNull(castleQueenside);
+    }
 }

@@ -31,6 +31,15 @@ public class MoveHandler implements IMoveHandler{
         if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             throw new IllegalStateException("Attempting to find legal moves for a piece whose turn it is not.");
         }
+        // Handle castling moves -- Cannot castle while in check, cannot castle through attack.
+        if (currentPlayerInCheck(whoseTurn)) {
+            possiblyLegalMoves = possiblyLegalMoves.stream()
+                    .filter(possibleMove -> !possibleMove.isCastleMove())
+                    .toList();
+        }
+
+//        possiblyLegalMoves
+
         return possiblyLegalMoves.stream()
                 .filter(possibleMove -> !wouldLeaveKingInCheck(possibleMove, whoseTurn))
                 .toList();
