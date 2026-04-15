@@ -11,42 +11,37 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BishopTest {
     @Test
+    void testInitialSetup(){
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
+
+        List<ChessboardPosition> blackBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
+        List<ChessboardPosition> whiteBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
+        int expectedNumberOfBishopsPerColor = 2;
+
+        assertEquals(expectedNumberOfBishopsPerColor, blackBishopPositions.size());
+        assertEquals(expectedNumberOfBishopsPerColor, whiteBishopPositions.size());
+    }
+
+    @Test
     void testInitialSetupValidMoves(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
 
-        ChessboardPosition blackBishop1Position = new ChessboardPosition(0, 2);
-        ChessboardPosition blackBishop2Position = new ChessboardPosition(0, 5);
-        ChessboardPosition whiteBishop1Position = new ChessboardPosition(7, 2);
-        ChessboardPosition whiteBishop2Position = new ChessboardPosition(7, 5);
+        List<ChessboardPosition> blackBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
+        List<ChessboardPosition> whiteBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
 
-
-        ChessPiece blackBishop1 = chessboard.getPieceAtPosition(blackBishop1Position);
-        ChessPiece blackBishop2 = chessboard.getPieceAtPosition(blackBishop2Position);
-        ChessPiece whiteBishop1 = chessboard.getPieceAtPosition(whiteBishop1Position);
-        ChessPiece whiteBishop2 = chessboard.getPieceAtPosition(whiteBishop2Position);
-
-        assertEquals("Bishop", blackBishop1.getType());
-        assertEquals(ChessColor.BLACK, blackBishop1.getColor());
-        assertEquals("Bishop", blackBishop2.getType());
-        assertEquals(ChessColor.BLACK, blackBishop2.getColor());
-        assertEquals("Bishop", whiteBishop1.getType());
-        assertEquals(ChessColor.WHITE, whiteBishop1.getColor());
-        assertEquals("Bishop", whiteBishop2.getType());
-        assertEquals(ChessColor.WHITE, whiteBishop2.getColor());
-
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(blackBishop1Position, moveHistory).size());
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(blackBishop2Position, moveHistory).size());
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(whiteBishop1Position, moveHistory).size());
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(whiteBishop2Position, moveHistory).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(whiteBishopPositions.get(0)).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(whiteBishopPositions.get(1)).size());
+        chessGame.switchTurns();
+        assertEquals(0, chessGame.getAllPossibleMoves(blackBishopPositions.get(0)).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(blackBishopPositions.get(1)).size());
     }
 
     @Test
     void testBishopMovementInCorner(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -55,18 +50,18 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
+        ChessGame chessGame = new ChessGame(loadedChessboard);
+        chessGame.switchTurns();
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(7, 0);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
-        assertEquals(7, chessboard.getPotentiallyLegalMoves(bishopPosition, moveHistory).size());
+        assertEquals(7, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
 
     @Test
     void testBishopMovementInCornerWithOppositeColorBlocker(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -75,17 +70,17 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
+        ChessGame chessGame = new ChessGame(loadedChessboard);
+        chessGame.switchTurns();
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(7, 0);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
-        assertEquals(4, chessboard.getPotentiallyLegalMoves(bishopPosition, moveHistory).size());
+        assertEquals(4, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
     @Test
     void testBishopMovementInCornerWithBlocker(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -94,18 +89,18 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
+        ChessGame chessGame = new ChessGame(loadedChessboard);
+        chessGame.switchTurns();
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(7, 0);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
-        assertEquals(3, chessboard.getPotentiallyLegalMoves(bishopPosition, moveHistory).size());
+        assertEquals(3, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
 
     @Test
     void testBishopMovementComplex(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- bP",
                 "-- -- wQ -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -114,18 +109,18 @@ public class BishopTest {
                 "-- -- -- -- -- -- wP --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
+        ChessGame chessGame = new ChessGame(loadedChessboard);
+        chessGame.switchTurns();
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(3, 4);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
-        assertEquals(7, chessboard.getPotentiallyLegalMoves(bishopPosition, moveHistory).size());
+        assertEquals(7, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
 
     @Test
     void testBishopMoveCannotCauseCheck(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- bB",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -134,18 +129,16 @@ public class BishopTest {
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(3, 4);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
         assertEquals(4, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
     @Test
     void testBishopMoveCannotCauseCheckMustTake(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -154,11 +147,10 @@ public class BishopTest {
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition bishopPosition = new ChessboardPosition(4, 3);
+        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
 
-        assertEquals("Bishop", chessboard.getPieceAtPosition(bishopPosition).getType());
         assertEquals(1, chessGame.getAllPossibleMoves(bishopPosition).size());
     }
 

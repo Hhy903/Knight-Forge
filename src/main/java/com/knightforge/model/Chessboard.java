@@ -16,17 +16,16 @@ public class Chessboard {
         setupInitialPieces();
     }
 
-    public List<ChessboardPosition> getPotentiallyLegalMoves(ChessboardPosition position, List<MoveNew> moveHistory) {
-        ChessPiece pieceAtPosition = board[position.getX()][position.getY()];
-        if (pieceAtPosition == null) {
-            return new ArrayList<>();
+    public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
+        List<ChessboardPosition> positions = new ArrayList<>();
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                if (board[row][col] != null && board[row][col].getColor() == color && board[row][col].getType().equals(type.name())){
+                    positions.add(new ChessboardPosition(row, col));
+                }
+            }
         }
-        List<ChessboardPosition> possibleMoves = new ArrayList<>();
-        possibleMoves.addAll(pieceAtPosition.getPossibleMoves(position, board));
-        possibleMoves.addAll(pieceAtPosition.getPossibleSpecialMoves(position, board, moveHistory));
-        // TODO: implement wouldLeaveKingInCheck check before returning
-//        return getValidMoves(position, pieceAtPosition, possibleMoves);
-        return possibleMoves;
+        return positions;
     }
 
     public ChessPiece movePiece(ChessboardPosition from, ChessboardPosition to){
@@ -44,57 +43,10 @@ public class Chessboard {
         board[currentLocation.getX()][currentLocation.getY()] = capturedPiece;
     }
 
-    protected List<ChessboardPosition> getAttackableSquares(ChessColor color, List<MoveNew> moveHistory) {
-        List<ChessboardPosition> attackableSquares = new ArrayList<>();
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] != null && board[row][col].getColor() == color){
-                    attackableSquares.addAll(getPotentiallyLegalMoves(new ChessboardPosition(row, col), moveHistory));
-                }
-            }
-        }
-        return attackableSquares;
-    }
-
-//    public List<ChessboardPosition> getValidMoves(ChessboardPosition currentPosition, ChessPiece pieceAtPosition, List<ChessboardPosition> possibleMoves){
-//        return possibleMoves.stream()
-//                .filter(possibleMove -> !wouldLeaveKingInCheck(currentPosition, possibleMove))
-//                .toList();
-//    }
-
-//    private boolean wouldLeaveKingInCheck(ChessboardPosition from, ChessboardPosition to) {
-//        ChessPiece capturedPiece = movePiece(from, to);
-//        boolean inCheck = inCheck
-//
-//    }
-//
-//    private boolean wouldLeaveKingInCheck(ChessboardPosition from, ChessboardPosition to) {
-//        ChessPiece movingPiece = getPieceAtPosition(from);
-//        ChessPiece capturedPiece = getPieceAtPosition(to);
-//        ChessboardPosition capturedPoint = copyPoint(to);
-//        boolean enPassantCapture = isEnPassantCapture(from, to, movingPiece);
-//        if (enPassantCapture) {
-//            capturedPoint = new ChessboardPosition(from.getX(), to.getY());
-//            capturedPiece = getPieceAt(capturedPoint);
-//            board[capturedPoint.getX()][capturedPoint.getY()] = null;
-//        }
-//        board[to.getX()][to.getY()] = movingPiece;
-//        board[from.getX()][from.getY()] = null;
-//
-//        ChessboardPosition kingPoint = movingPiece.getType() == PieceType.KING ? to : findKing(movingPiece.getColor());
-//        boolean inCheck = kingPoint == null || isSquareUnderAttack(kingPoint, oppositeColor(movingPiece.getColor()));
-//
-//        board[from.getX()][from.getY()] = movingPiece;
-//        board[to.getX()][to.getY()] = capturedPoint.equals(to) ? capturedPiece : null;
-//        if (enPassantCapture && capturedPoint != null) {
-//            board[capturedPoint.getX()][capturedPoint.getY()] = capturedPiece;
-//        }
-//        return inCheck;
-//    }
     public ChessboardPosition getKingLocation(ChessColor color) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] != null && board[row][col].getColor() == color && Objects.equals(board[row][col].getType(), "King")){
+                if (board[row][col] != null && board[row][col].getColor() == color && Objects.equals(board[row][col].getType(), "KING")){
                     return new ChessboardPosition(row, col);
                 }
             }
@@ -156,7 +108,6 @@ public class Chessboard {
         return chessPieceFactory.createPiece(type, color);
     }
 
-    // TODO: Update to return copy?
     public ChessPiece[][] getBoard() {
         return board;
     }

@@ -17,7 +17,7 @@ public abstract class ChessPiece {
     public ChessColor getColor() { return this.color; }
     public String getType() { return this.type; }
 
-    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition currentPosition, ChessPiece[][] chessboard) {
+    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition currentPosition, ChessPiece[][] chessboard, List<MoveNew> moveHistory) {
         List<ChessboardPosition> legalMoves = new ArrayList<>();
 
         for (int row = 0; row < chessboard.length; row++) {
@@ -29,6 +29,7 @@ public abstract class ChessPiece {
             }
         }
 
+        legalMoves.addAll(getPossibleSpecialMoves(currentPosition, chessboard, moveHistory));
         return legalMoves;
     }
 

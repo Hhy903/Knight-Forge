@@ -7,35 +7,39 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class KingTest {
     @Test
+    void testInitialSetup(){
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
+
+        List<ChessboardPosition> blackKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
+        List<ChessboardPosition> whiteKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
+        int expectedNumberOfKingsPerColor = 1;
+
+        assertEquals(expectedNumberOfKingsPerColor, blackKingPositions.size());
+        assertEquals(expectedNumberOfKingsPerColor, whiteKingPositions.size());
+    }
+
+    @Test
     void testInitialSetupValidMoves(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
 
-        ChessboardPosition initalKingPositionBlack = new ChessboardPosition(0, 4);
-        ChessboardPosition initalKingPositionWhite = new ChessboardPosition(7, 4);
+        List<ChessboardPosition> blackKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
+        List<ChessboardPosition> whiteKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
 
-        ChessPiece blackKing = chessboard.getPieceAtPosition(initalKingPositionBlack);
-        ChessPiece whiteKing = chessboard.getPieceAtPosition(initalKingPositionWhite);
-
-        assertEquals("King", blackKing.getType());
-        assertEquals(ChessColor.BLACK, blackKing.getColor());
-        assertEquals("King", whiteKing.getType());
-        assertEquals(ChessColor.WHITE, whiteKing.getColor());
-
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(initalKingPositionBlack, moveHistory).size());
-        assertEquals(0, chessboard.getPotentiallyLegalMoves(initalKingPositionWhite, moveHistory).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(whiteKingPositions.get(0)).size());
+        chessGame.switchTurns();
+        assertEquals(0, chessGame.getAllPossibleMoves(blackKingPositions.get(0)).size());
     }
 
     @Test
     void testCanMoveInAllDirections(){
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -44,16 +48,17 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition kingPosition = new ChessboardPosition(1, 2);
+        ChessboardPosition kingPosition = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
 
-        assertEquals(8, chessboard.getPotentiallyLegalMoves(kingPosition, moveHistory).size());
+        assertEquals(8, chessGame.getAllPossibleMoves(kingPosition).size());
     }
 
     @Test
     void testCorrectMovementWithBlockers(){
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- bK bP -- -- -- --",
                 "-- -- wP -- -- -- -- --",
@@ -62,10 +67,10 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
         chessGame.switchTurns();
 
-        ChessboardPosition kingPosition = new ChessboardPosition(1, 2);
+        ChessboardPosition kingPosition = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK).get(0);
 
         assertEquals(6, chessGame.getAllPossibleMoves(kingPosition).size());
     }

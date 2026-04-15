@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends ChessPiece {
-    static String PIECE_NAME = "Pawn";
+    static String PIECE_NAME = "PAWN";
     int direction;
     int startRow;
     public Pawn(ChessColor color) {

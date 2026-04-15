@@ -54,13 +54,23 @@ public class ChessboardTest {
                 .map(ChessPiece::getType)
                 .toArray(String[]::new);
         String[] chessPiecesExpected =
-                {"Pawn", "Pawn",   "Pawn",   "Pawn",  "Pawn", "Pawn",   "Pawn",   "Pawn",
-                 "Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"};
+                {"PAWN", "PAWN",   "PAWN",   "PAWN",  "PAWN", "PAWN",   "PAWN",   "PAWN",
+                 "ROOK", "KNIGHT", "BISHOP", "QUEEN", "KING", "BISHOP", "KNIGHT", "ROOK"};
         Arrays.sort(chessPiecesWhite);
         Arrays.sort(chessPiecesBlack);
         Arrays.sort(chessPiecesExpected);
 
         assertArrayEquals(chessPiecesWhite, chessPiecesExpected);
         assertArrayEquals(chessPiecesBlack, chessPiecesExpected);
+    }
+
+    @Test
+    void testGetAllPositionsForGivenPiece(){
+        Chessboard chessboard = new Chessboard();
+
+        List<ChessboardPosition> whitePawnPositions = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
+        int expectedNumberOfPawnsPerPlayer = 8;
+
+        assertEquals(expectedNumberOfPawnsPerPlayer, whitePawnPositions.size());
     }
 }

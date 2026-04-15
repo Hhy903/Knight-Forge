@@ -4,7 +4,7 @@ import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessboardPosition;
 
 public class Knight extends ChessPiece {
-    static String PIECE_NAME = "Knight";
+    static String PIECE_NAME = "KNIGHT";
     public Knight(ChessColor color) {
         super(color, PIECE_NAME);
     }

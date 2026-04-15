@@ -7,32 +7,59 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PawnTest {
     @Test
-    void testInitialSetupValidMoves() {
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        ChessGame chessGame = new ChessGame(chessboard);
+    void testInitialSetup(){
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
 
-        ChessboardPosition whitePawnPositionOnEdge = new ChessboardPosition(6, 0);
-        ChessboardPosition whitePawnPositionInMiddle = new ChessboardPosition(6, 3);
-        ChessboardPosition blackPawnPositionOnEdge = new ChessboardPosition(1, 0);
-        ChessboardPosition blackPawnPositionInMiddle = new ChessboardPosition(1, 3);
+        List<ChessboardPosition> blackPawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
+        List<ChessboardPosition> whitePawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
+        int expectedNumberOfPawnsPerColor = 8;
+
+        assertEquals(expectedNumberOfPawnsPerColor, blackPawnPositions.size());
+        assertEquals(expectedNumberOfPawnsPerColor, whitePawnPositions.size());
+    }
+
+    @Test
+    void testInitialSetupValidMoves() {
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
+
+        List<ChessboardPosition> whitePawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
+        List<ChessboardPosition> blackPawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
+
+        // Test white pawns on edge and in middle
+        ChessboardPosition whitePawnPositionOnEdge = whitePawnPositions.stream()
+                .filter(pos -> pos.getY() == 0)
+                .findFirst().orElseThrow();
+        ChessboardPosition whitePawnPositionInMiddle = whitePawnPositions.stream()
+                .filter(pos -> pos.getY() == 3)
+                .findFirst().orElseThrow();
 
         assertEquals(2, chessGame.getAllPossibleMoves(whitePawnPositionOnEdge).size());
         assertEquals(2, chessGame.getAllPossibleMoves(whitePawnPositionInMiddle).size());
+
         chessGame.switchTurns();
+
+        // Test black pawns on edge and in middle
+        ChessboardPosition blackPawnPositionOnEdge = blackPawnPositions.stream()
+                .filter(pos -> pos.getY() == 0)
+                .findFirst().orElseThrow();
+        ChessboardPosition blackPawnPositionInMiddle = blackPawnPositions.stream()
+                .filter(pos -> pos.getY() == 3)
+                .findFirst().orElseThrow();
+
         assertEquals(2, chessGame.getAllPossibleMoves(blackPawnPositionOnEdge).size());
         assertEquals(2, chessGame.getAllPossibleMoves(blackPawnPositionInMiddle).size());
     }
 
     @Test
     void testBlockedMovementFromStart() {
-        Chessboard chessboard = new Chessboard();
-        List<MoveNew> moveHistory = new ArrayList<>();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -41,17 +68,17 @@ public class PawnTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whitePawnPosition = new ChessboardPosition(6, 2);
+        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
         assertEquals(1, chessGame.getAllPossibleMoves(whitePawnPosition).size());
     }
 
     @Test
     void testOptionalAttack() {
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -60,17 +87,17 @@ public class PawnTest {
                 "-- -- -- bP -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whitePawnPosition = new ChessboardPosition(6, 2);
+        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
         assertEquals(3, chessGame.getAllPossibleMoves(whitePawnPosition).size());
     }
 
     @Test
     void testCantCauseCheckWithMovement() {
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- bB --",
@@ -79,9 +106,9 @@ public class PawnTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- wK -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whitePawnPosition = new ChessboardPosition(6, 2);
+        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
         assertEquals(0, chessGame.getAllPossibleMoves(whitePawnPosition).size());
     }

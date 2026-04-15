@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends ChessPiece {
-    static String PIECE_NAME = "Rook";
+    static String PIECE_NAME = "ROOK";
 
     public Rook(ChessColor color) {
         super(color, PIECE_NAME);

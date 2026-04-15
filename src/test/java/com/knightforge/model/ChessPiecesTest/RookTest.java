@@ -6,45 +6,41 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RookTest {
     @Test
+    void testInitialSetup(){
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
+
+        List<ChessboardPosition> blackRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
+        List<ChessboardPosition> whiteRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
+        int expectedNumberOfRooksPerColor = 2;
+
+        assertEquals(expectedNumberOfRooksPerColor, blackRookPositions.size());
+        assertEquals(expectedNumberOfRooksPerColor, whiteRookPositions.size());
+    }
+
+    @Test
     void testInitialSetupValidMoves(){
-        Chessboard chessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(chessboard);
+        Chessboard defaultChessboard = new Chessboard();
+        ChessGame chessGame = new ChessGame(defaultChessboard);
 
-        ChessboardPosition blackRook1Position = new ChessboardPosition(0, 0);
-        ChessboardPosition blackRook2Position = new ChessboardPosition(0, 7);
-        ChessboardPosition whiteRook1Position = new ChessboardPosition(7, 0);
-        ChessboardPosition whiteRook2Position = new ChessboardPosition(7, 7);
+        List<ChessboardPosition> blackRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
+        List<ChessboardPosition> whiteRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
 
-        ChessPiece blackRook1 = chessboard.getPieceAtPosition(blackRook1Position);
-        ChessPiece blackRook2 = chessboard.getPieceAtPosition(blackRook2Position);
-        ChessPiece whiteRook1 = chessboard.getPieceAtPosition(whiteRook1Position);
-        ChessPiece whiteRook2 = chessboard.getPieceAtPosition(whiteRook2Position);
-
-        assertEquals("Rook", blackRook1.getType());
-        assertEquals(ChessColor.BLACK, blackRook1.getColor());
-        assertEquals("Rook", blackRook2.getType());
-        assertEquals(ChessColor.BLACK, blackRook2.getColor());
-        assertEquals("Rook", whiteRook1.getType());
-        assertEquals(ChessColor.WHITE, whiteRook1.getColor());
-        assertEquals("Rook", whiteRook2.getType());
-        assertEquals(ChessColor.WHITE, whiteRook2.getColor());
-
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteRook1Position).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteRook2Position).size());
-
+        assertEquals(0, chessGame.getAllPossibleMoves(whiteRookPositions.get(0)).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(whiteRookPositions.get(1)).size());
         chessGame.switchTurns();
-        assertEquals(0, chessGame.getAllPossibleMoves(blackRook1Position).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(blackRook2Position).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(blackRookPositions.get(0)).size());
+        assertEquals(0, chessGame.getAllPossibleMoves(blackRookPositions.get(1)).size());
     }
 
     @Test
     void testStandardMovementFromStart() {
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -53,17 +49,17 @@ public class RookTest {
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whiteRookPosition = new ChessboardPosition(3, 2);
+        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
         assertEquals(11, chessGame.getAllPossibleMoves(whiteRookPosition).size());
     }
 
     @Test
     void testBlockedMovementFromStart() {
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "bP -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -72,17 +68,17 @@ public class RookTest {
                 "wR -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whiteRookPosition = new ChessboardPosition(5, 0);
+        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
         assertEquals(8, chessGame.getAllPossibleMoves(whiteRookPosition).size());
     }
 
     @Test
     void testCannotCauseCheckWithMovement() {
-        Chessboard chessboard = new Chessboard();
-        chessboard.loadFromLines(List.of(
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -91,9 +87,9 @@ public class RookTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(chessboard);
+        ChessGame chessGame = new ChessGame(loadedChessboard);
 
-        ChessboardPosition whiteRookPosition = new ChessboardPosition(3, 2);
+        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
         assertEquals(5, chessGame.getAllPossibleMoves(whiteRookPosition).size());
     }
