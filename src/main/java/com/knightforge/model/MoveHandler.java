@@ -8,7 +8,6 @@ import java.util.List;
 public class MoveHandler implements IMoveHandler{
     Chessboard chessboard;
     private final List<MoveNew> moveHistory = new ArrayList<>();
-    private GameState gameState = new GameState();
 
     public MoveHandler(Chessboard chessboard) {
         this.chessboard = chessboard;

@@ -220,4 +220,29 @@ public class KingTest {
                 .orElse(null);
         assertNull(castleKingside);
     }
+
+    @Test
+    void testCannotCastleIntoCheck() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- -- -- bR --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "wR -- -- -- wK -- -- wR"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+
+        // Should not be able to castle kingside (g1 is under attack where king would land)
+        MoveNew castleKingside = kingMoves.stream()
+                .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
+                .findFirst()
+                .orElse(null);
+        assertNull(castleKingside);
+    }
 }
