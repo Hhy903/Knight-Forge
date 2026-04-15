@@ -8,6 +8,7 @@ import java.util.List;
 public class MoveHandler implements IMoveHandler{
     Chessboard chessboard;
     private final List<MoveNew> moveHistory = new ArrayList<>();
+    private GameState gameState = new GameState();
 
     public MoveHandler(Chessboard chessboard) {
         this.chessboard = chessboard;
@@ -71,6 +72,16 @@ public class MoveHandler implements IMoveHandler{
     }
 
     public boolean executeMove(MoveNew move) {
+        chessboard.movePiece(move.getFrom(), move.getTo());
+        moveHistory.add(move);
+        if (move.isEnPassant()) {
+            chessboard.capture(move.getEnPassantCaptureLocation());
+        }
+        if (move.isCastleMove()) {
+            chessboard.movePiece(move.getRookPositionInvolvedInCastle(), new ChessboardPosition(move.getFrom().getX(), (move.getTo().getY() + move.getFrom().getY())/2));
+        }
+        // TODO: If move is En Passant call chessboard.capture at en passant location
+        // TODO: If move is Castle, call move on rook piece as well.
         return false;
     }
 

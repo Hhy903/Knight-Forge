@@ -19,6 +19,10 @@ public class Chessboard {
     public int getLength() { return board.length; }
     public int getHeight() { return board[0].length; }
 
+    public void capture(ChessboardPosition capturePosition) {
+        board[capturePosition.getX()][capturePosition.getY()] = null;
+    }
+
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
         List<ChessboardPosition> positions = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {

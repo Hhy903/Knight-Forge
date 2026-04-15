@@ -18,20 +18,17 @@ public abstract class ChessPiece {
     public String getType() { return this.type; }
 
     public List<MoveNew> getPossibleMoves(ChessboardPosition currentPosition, Chessboard chessboard, List<MoveNew> moveHistory) {
-//        List<ChessboardPosition> legalMoves = new ArrayList<>();
         List<MoveNew> legalMoves = new ArrayList<>();
 
         for (int row = 0; row < chessboard.getHeight(); row++) {
             for (int col = 0; col < chessboard.getLength(); col++) {
                 ChessboardPosition target = new ChessboardPosition(row, col);
                 if (isLegalMove(currentPosition, target, chessboard)) {
-//                    legalMoves.add(target);
                     legalMoves.add(new MoveNew(currentPosition, target, chessboard.getPieceAtPosition(currentPosition), chessboard.getPieceAtPosition(target)));
                 }
             }
         }
 
-//        legalMoves.addAll(getPossibleSpecialMoves(currentPosition, chessboard, moveHistory));
         legalMoves.addAll(getPossibleSpecialMoves(currentPosition, chessboard, moveHistory));
 
         return legalMoves;

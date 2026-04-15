@@ -34,7 +34,6 @@ public class Pawn extends ChessPiece {
     // Adds special-case diagonal movement (attacking and En Passant)
     @Override
     public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<MoveNew> moveHistory) {
-//        List<ChessboardPosition> positions = new ArrayList<>();
         List<MoveNew> possibleMoves = new ArrayList<>();
         // Standard Attacking
         //Digonal 1
@@ -42,7 +41,6 @@ public class Pawn extends ChessPiece {
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1).getColor() != color) {
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+1);
-//            positions.add(targetPosition);
             possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         //Diagonal 2
@@ -50,7 +48,6 @@ public class Pawn extends ChessPiece {
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1).getColor() != color) {
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()-1);
-//            positions.add(targetPosition);
             possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         if (moveHistory.isEmpty()) { return possibleMoves; }
@@ -60,8 +57,7 @@ public class Pawn extends ChessPiece {
                 currentPosition.getX() == opponentsLastMove.getTo().getX() &&
                 Math.abs(currentPosition.getY() - opponentsLastMove.getTo().getY()) == 1){
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, opponentsLastMove.getTo().getY());
-//            positions.add(targetPosition);
-            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()), true, false));
+            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()), opponentsLastMove.getTo(), null));
         }
         return possibleMoves;
     }
