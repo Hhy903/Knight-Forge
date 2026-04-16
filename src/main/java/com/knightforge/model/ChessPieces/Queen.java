@@ -2,15 +2,15 @@ package com.knightforge.model.ChessPieces;
 
 import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.PieceType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Queen extends ChessPiece {
-    static String PIECE_NAME = "QUEEN";
 
     public Queen(ChessColor color) {
-        super(color, PIECE_NAME);
+        super(color, PieceType.QUEEN);
     }
 
     @Override

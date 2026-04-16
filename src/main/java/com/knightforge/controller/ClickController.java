@@ -1,13 +1,13 @@
 package com.knightforge.controller;
 
 
-import com.knightforge.model.ChessComponent;
-import com.knightforge.view.Chessboard;
+import com.knightforge.view.ChessComponent;
+import com.knightforge.view.ChessboardView;
 
 public class ClickController {
-    private final Chessboard chessboard;
+    private final ChessboardView chessboard;
 
-    public ClickController(Chessboard chessboard) {
+    public ClickController(ChessboardView chessboard) {
         this.chessboard = chessboard;
     }
 

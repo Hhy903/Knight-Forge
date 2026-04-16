@@ -1,6 +1,7 @@
 package com.knightforge.model;
 
 import com.knightforge.controller.ClickController;
+import com.knightforge.view.ChessComponent;
 
 import java.awt.*;
 import java.io.IOException;
@@ -12,21 +13,6 @@ public class EmptySlotComponent extends ChessComponent {
 
     public EmptySlotComponent(ChessboardPosition chessboardPosition, Point location, ClickController listener, int size) {
         super(chessboardPosition, location, listener, size);
-    }
-
-    @Override
-    public ChessColor getChessColor() {
-        return ChessColor.NONE;
-    }
-
-    @Override
-    public boolean canMoveTo(BoardState boardState, ChessboardPosition destination) {
-        return false;
-    }
-
-    @Override
-    public void loadResource() throws IOException {
-        // No resource required.
     }
 
     @Override

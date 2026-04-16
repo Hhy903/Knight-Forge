@@ -1,7 +1,6 @@
 package com.knightforge.view;
 
 import com.knightforge.controller.ChessGameController;
-import com.knightforge.controller.GameController;
 import com.knightforge.model.ChessGame;
 
 import javax.swing.*;
@@ -44,8 +43,8 @@ public class ChessGameView extends JFrame {
     }
 
     private void addChessboard() {
-        ChessboardView chessboard = new ChessboardView(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameModel);
-        chessboard.setStatusConsumer(this::updateStatus);
+        ChessboardView chessboard = new ChessboardView(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameModel, chessGameController);
+//        chessboard.setStatusConsumer(this::updateStatus);
 //        chessboard.setPromotionHandler(this::showPromotionDialog);
 //        chessboard.setGameOverConsumer(this::showGameOverDialog);
 //        gameController = new GameController(chessboard);

@@ -2,7 +2,6 @@ package com.knightforge;
 
 import com.knightforge.controller.ChessGameController;
 import com.knightforge.model.ChessGame;
-import com.knightforge.view.ChessGameFrame;
 
 import javax.swing.*;
 

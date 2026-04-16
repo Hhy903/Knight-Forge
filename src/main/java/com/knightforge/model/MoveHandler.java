@@ -103,7 +103,7 @@ public class MoveHandler implements IMoveHandler{
 
                     List<ChessboardPosition> possibleResultingPositions = tmp.stream()
                             .map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY()))
-                            .toList();;
+                            .toList();
                     attackableSquares.addAll(possibleResultingPositions);
                 }
             }
@@ -112,7 +112,7 @@ public class MoveHandler implements IMoveHandler{
     }
 
     private boolean moveIsDiagonalIfPawnMove(MoveNew move) {
-        if (!Objects.equals(chessboard.getPieceAtPosition(move.getFrom()).getType(), PieceType.PAWN.name())){
+        if (!Objects.equals(chessboard.getPieceAtPosition(move.getFrom()).getType(), PieceType.PAWN)){
             return true;
         }
         return move.getTo().getY() != move.getFrom().getY();

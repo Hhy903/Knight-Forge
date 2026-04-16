@@ -15,6 +15,7 @@ public class ChessGame implements ObservableChessGame{
     }
     public ChessGame() {
         this.chessboard = new Chessboard();
+        this.moveHandler = new MoveHandler(chessboard);
         this.whoseTurn = ChessColor.WHITE;
     }
 

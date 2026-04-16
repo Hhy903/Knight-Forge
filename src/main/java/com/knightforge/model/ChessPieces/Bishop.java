@@ -2,15 +2,14 @@ package com.knightforge.model.ChessPieces;
 
 import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.PieceType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Bishop extends ChessPiece {
-    static String PIECE_NAME = "BISHOP";
-
     public Bishop(ChessColor color) {
-        super(color, PIECE_NAME);
+        super(color, PieceType.BISHOP);
     }
 
     protected boolean movementDirectionIsValid(ChessboardPosition from, ChessboardPosition to) {

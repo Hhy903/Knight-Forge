@@ -1,11 +1,19 @@
 package com.knightforge.controller;
 
 import com.knightforge.model.ChessGame;
+import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.MoveNew;
 import com.knightforge.view.ChessGameView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ChessGameController {
     ChessGame chessGameModel;
     ChessGameView chessGameView;
+
+    List<MoveNew> possibleMoves = new ArrayList<>();
 
     public ChessGameController (ChessGame chessGameModel) {
         this.chessGameModel = chessGameModel;
@@ -28,5 +36,15 @@ public class ChessGameController {
 
     public boolean saveGameToFile(String filepath) {
         throw new Error("Implement me!");
+    }
+
+    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition position){
+        possibleMoves = chessGameModel.getAllPossibleMoves(position);
+        return possibleMoves.stream().map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY())).toList();
+    }
+
+    public void executeMove(ChessboardPosition from, ChessboardPosition to) {
+        Optional<MoveNew> moveToMake = possibleMoves.stream().filter(move -> move.getTo().equals(to)).findFirst();
+        moveToMake.ifPresent(moveNew -> chessGameModel.executeMove(moveNew));
     }
 }

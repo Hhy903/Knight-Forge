@@ -2,7 +2,7 @@ package com.knightforge.view;
 
 import com.knightforge.controller.ClickController;
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPiece;
+import com.knightforge.model.ChessPieces.ChessPiece;
 
 import java.awt.*;
 
@@ -20,22 +20,6 @@ public class PieceChessComponent extends ChessComponent {
 
     public ChessPiece getPiece() {
         return piece;
-    }
-
-    @Override
-    public ChessColor getChessColor() {
-        return piece.getColor();
-    }
-
-    @Override
-    public boolean canMoveTo(BoardState boardState, ChessboardPosition destination) {
-        return boardState.isLegalMove(getChessboardPoint(), destination);
-    }
-
-    @Override
-    public void loadResource() {
-        skinManager.getPieceImage(piece.getType(), ChessColor.WHITE);
-        skinManager.getPieceImage(piece.getType(), ChessColor.BLACK);
     }
 
     @Override

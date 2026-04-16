@@ -7,15 +7,15 @@ import java.util.List;
 
 public abstract class ChessPiece {
     ChessColor color;
-    String type;
+    PieceType type;
 
-    public ChessPiece(ChessColor color, String name) {
+    public ChessPiece(ChessColor color, PieceType type) {
         this.color = color;
-        this.type = name;
+        this.type = type;
     }
 
     public ChessColor getColor() { return this.color; }
-    public String getType() { return this.type; }
+    public PieceType getType() { return this.type; }
 
     public List<MoveNew> getPossibleMoves(ChessboardPosition currentPosition, Chessboard chessboard, List<MoveNew> moveHistory) {
         List<MoveNew> legalMoves = new ArrayList<>();

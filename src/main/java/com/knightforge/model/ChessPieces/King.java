@@ -10,11 +10,10 @@ public class King extends ChessPiece {
     private static final int DEFAULT_START_COLUMN = 4;
     private static final int QUEENSIDE_ROOK_COLUMN = 0;
     private static final int KINGSIDE_ROOK_COLUMN = 7;
-    static String PIECE_NAME = "KING";
     private final int startRow;
 
     public King(ChessColor color) {
-        super(color, PIECE_NAME);
+        super(color, PieceType.KING);
         startRow = color == ChessColor.BLACK ? 0 : 7;
     }
 
@@ -68,14 +67,14 @@ public class King extends ChessPiece {
     }
 
     private boolean rookHasNotMoved(List<MoveNew> moveHistory, int currentPieceRow, int desiredRookColumn, Chessboard chessboard) {
-        if (!Objects.equals(chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getType(), PieceType.ROOK.name()) ||
+        if (!Objects.equals(chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getType(), PieceType.ROOK) ||
                 chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getColor() != this.color) {
             return false;
         }
         for (MoveNew move : moveHistory) {
             ChessPiece activePiece = move.getActivePiece();
             if (activePiece.getColor() == this.color &&
-                    Objects.equals(activePiece.getType(), PieceType.ROOK.name()) &&
+                    Objects.equals(activePiece.getType(), PieceType.ROOK) &&
                     move.getFrom().getX() == currentPieceRow &&
                     move.getFrom().getY() == desiredRookColumn) {
                 return false;

@@ -3,11 +3,11 @@ package com.knightforge.model.ChessPieces;
 import com.knightforge.model.ChessColor;
 import com.knightforge.model.Chessboard;
 import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.PieceType;
 
 public class Knight extends ChessPiece {
-    static String PIECE_NAME = "KNIGHT";
     public Knight(ChessColor color) {
-        super(color, PIECE_NAME);
+        super(color, PieceType.KNIGHT);
     }
 
     @Override

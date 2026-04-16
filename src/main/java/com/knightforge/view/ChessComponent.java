@@ -1,6 +1,10 @@
-package com.knightforge.model;
+package com.knightforge.view;
 
 import com.knightforge.controller.ClickController;
+import com.knightforge.model.BoardState;
+import com.knightforge.model.ChessColor;
+import com.knightforge.model.ChessboardPosition;
+import com.knightforge.model.EmptySlotComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,38 +50,15 @@ public abstract class ChessComponent extends JComponent {
         return chessboardPosition;
     }
 
-    public void setChessboardPoint(ChessboardPosition chessboardPosition) {
-        this.chessboardPosition = chessboardPosition;
-    }
-
-    public abstract ChessColor getChessColor();
-
     public boolean isSelected() {
         return selected;
     }
 
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void setMoveHint(boolean bool){
+        moveHint = bool;
     }
-
     public boolean isMoveHint() {
         return moveHint;
-    }
-
-    public void setMoveHint(boolean moveHint) {
-        this.moveHint = moveHint;
-    }
-
-    /**
-     * @param another the other square to swap with during a move
-     */
-    public void swapLocation(ChessComponent another) {
-        ChessboardPosition chessboardPosition1 = getChessboardPoint(), chessboardPosition2 = another.getChessboardPoint();
-        Point point1 = getLocation(), point2 = another.getLocation();
-        setChessboardPoint(chessboardPosition2);
-        setLocation(point2);
-        another.setChessboardPoint(chessboardPosition1);
-        another.setLocation(point1);
     }
 
     /**
@@ -92,20 +73,6 @@ public abstract class ChessComponent extends JComponent {
             clickController.onClick(this);
         }
     }
-
-    /**
-     * @param chessboard the full board state
-     * @param destination the target square, such as (0, 0) or (0, 7)
-     * @return whether this piece can legally move from its current position to the target
-     */
-    public abstract boolean canMoveTo(BoardState boardState, ChessboardPosition destination);
-
-    /**
-     * Loads static resources such as piece images.
-     *
-     * @throws IOException if a required resource cannot be found or loaded
-     */
-    public abstract void loadResource() throws IOException;
 
     @Override
     protected void paintComponent(Graphics g) {

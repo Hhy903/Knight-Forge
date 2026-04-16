@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends ChessPiece {
-    static String PIECE_NAME = "PAWN";
     int direction;
     int startRow;
     public Pawn(ChessColor color) {
-        super(color, PIECE_NAME);
+        super(color, PieceType.PAWN);
         direction = color == ChessColor.BLACK ? 1 : -1;
         startRow = color == ChessColor.BLACK ? 1 : 6;
     }
