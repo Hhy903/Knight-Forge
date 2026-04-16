@@ -67,14 +67,17 @@ public class MoveHandler implements IMoveHandler{
         return true;
     }
 
+    // TODO:
     private boolean wouldLeaveKingInCheck(MoveNew move, ChessColor whoseTurn) {
         // Make the move, store if current player is in check.
-        ChessPiece activePiece = chessboard.getPieceAtPosition(move.getFrom());
-        ChessPiece capturedPiece = chessboard.movePiece(move.getFrom(), move.getTo());
+        executeMove(move);
+//        ChessPiece activePiece = chessboard.getPieceAtPosition(move.getFrom());
+//        ChessPiece capturedPiece = chessboard.movePiece(move.getFrom(), move.getTo());
         boolean inCheck = currentPlayerInCheck(whoseTurn);
 
         // Undo the move
-        chessboard.reverseMove(move.getTo(), move.getFrom(), activePiece, capturedPiece);
+        undoLastMove();
+//        chessboard.reverseMove(move.getTo(), move.getFrom(), activePiece, capturedPiece);
 
         return inCheck;
     }
@@ -85,6 +88,7 @@ public class MoveHandler implements IMoveHandler{
         return opponentsAttackableSquares.contains(kingPosition);
     }
 
+    // TODO: Currently using the getPotentiallyLegalMoves to determine opponents attackable squares fails for pawn movement
     protected List<ChessboardPosition> getAttackableSquares(ChessColor color) {
         List<ChessboardPosition> attackableSquares = new ArrayList<>();
         for (PieceType piece : PieceType.values()){
@@ -110,13 +114,32 @@ public class MoveHandler implements IMoveHandler{
         if (move.isCastleMove()) {
             chessboard.movePiece(move.getRookPositionInvolvedInCastle(), new ChessboardPosition(move.getFrom().getX(), (move.getTo().getY() + move.getFrom().getY())/2));
         }
-        // TODO: If move is En Passant call chessboard.capture at en passant location
-        // TODO: If move is Castle, call move on rook piece as well.
         return false;
     }
 
-    public boolean undoMove(MoveNew move) {
-        return false;
+    public boolean undoLastMove() {
+        if (moveHistory.isEmpty()) {
+            return false;
+        }
+        MoveNew lastMove = moveHistory.get(moveHistory.size()-1);
+        // En Passant
+        if (lastMove.isEnPassant()){
+            chessboard.movePiece(lastMove.getTo(), lastMove.getFrom());
+            chessboard.placePiece(lastMove.getInvolvedPiece(), lastMove.getEnPassantCaptureLocation());
+        }
+        // Castle Move
+        else if (lastMove.isCastleMove()) {
+            chessboard.movePiece(lastMove.getTo(), lastMove.getFrom());
+            chessboard.movePiece(new ChessboardPosition(lastMove.getFrom().getX(),(lastMove.getTo().getY() + lastMove.getFrom().getY())/2), lastMove.getRookPositionInvolvedInCastle());
+        }
+        // Standard Move
+        else {
+            chessboard.movePiece(lastMove.getTo(), lastMove.getFrom());
+            chessboard.placePiece(lastMove.getInvolvedPiece(), lastMove.getTo());
+        }
+        // Remove the move from the moveHistory.
+        moveHistory.remove(moveHistory.size() - 1);
+        return true;
     }
 
     private ChessColor oppositeColor(ChessColor color) {

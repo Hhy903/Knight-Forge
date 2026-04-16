@@ -68,6 +68,10 @@ public class Chessboard {
         return board[row][height];
     }
 
+    public void placePiece(ChessPiece piece, ChessboardPosition location){
+        board[location.getX()][location.getY()] = piece;
+    }
+
     private void setupInitialPieces() {
         PieceType[] backRank = {
                 PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN,

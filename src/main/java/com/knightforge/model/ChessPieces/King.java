@@ -39,7 +39,7 @@ public class King extends ChessPiece {
             specialMoves.add(new MoveNew(currentPosition,
                     possibleTargetPosition,
                     board.getPieceAtPosition(currentPosition),
-                    null,
+                    board.getPieceAtPosition(involvedRookPosition),
                     null,
                     new ChessboardPosition(currentPosition.getX(), QUEENSIDE_ROOK_COLUMN)));
         }
@@ -52,7 +52,7 @@ public class King extends ChessPiece {
             specialMoves.add(new MoveNew(currentPosition,
                     new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+2),
                     board.getPieceAtPosition(currentPosition),
-                    null,
+                    board.getPieceAtPosition(involvedRookPosition),
                     null,
                     new ChessboardPosition(currentPosition.getX(), KINGSIDE_ROOK_COLUMN)));
         }

@@ -57,7 +57,12 @@ public class Pawn extends ChessPiece {
                 currentPosition.getX() == opponentsLastMove.getTo().getX() &&
                 Math.abs(currentPosition.getY() - opponentsLastMove.getTo().getY()) == 1){
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, opponentsLastMove.getTo().getY());
-            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()), opponentsLastMove.getTo(), null));
+            possibleMoves.add(new MoveNew(currentPosition,
+                    targetPosition,
+                    board.getPieceAtPosition(currentPosition),
+                    board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()),
+                    opponentsLastMove.getTo(),
+                    null));
         }
         return possibleMoves;
     }
