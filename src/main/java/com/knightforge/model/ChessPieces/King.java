@@ -32,8 +32,10 @@ public class King extends ChessPiece {
         if (thisPieceHasMoved(moveHistory) || !thisPieceAtStartingLocation(board)) { return specialMoves; }
 
         ChessboardPosition possibleTargetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()-2);
+        ChessboardPosition involvedRookPosition = new ChessboardPosition(currentPosition.getX(), QUEENSIDE_ROOK_COLUMN);
         if (rookHasNotMoved(moveHistory, currentPosition.getX(), QUEENSIDE_ROOK_COLUMN, board) &&
-                pathIsClear(currentPosition, possibleTargetPosition, board)){
+                pathIsClear(currentPosition, possibleTargetPosition, board) &&
+                pathIsClear(currentPosition, involvedRookPosition, board)){
             specialMoves.add(new MoveNew(currentPosition,
                     possibleTargetPosition,
                     board.getPieceAtPosition(currentPosition),
@@ -43,8 +45,10 @@ public class King extends ChessPiece {
         }
 
         possibleTargetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+2);
+        involvedRookPosition = new ChessboardPosition(currentPosition.getX(), KINGSIDE_ROOK_COLUMN);
         if (rookHasNotMoved(moveHistory, currentPosition.getX(), KINGSIDE_ROOK_COLUMN, board) &&
-                pathIsClear(currentPosition, possibleTargetPosition, board)){
+                pathIsClear(currentPosition, possibleTargetPosition, board)&&
+                pathIsClear(currentPosition, involvedRookPosition, board)){
             specialMoves.add(new MoveNew(currentPosition,
                     new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+2),
                     board.getPieceAtPosition(currentPosition),

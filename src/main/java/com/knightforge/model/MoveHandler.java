@@ -38,11 +38,26 @@ public class MoveHandler implements IMoveHandler{
                     .toList();
         }
 
-//        possiblyLegalMoves
+        List<ChessboardPosition> opponentsAttackableSquares = getAttackableSquares(oppositeColor(whoseTurn));
+        possiblyLegalMoves = possiblyLegalMoves.stream()
+                .filter(move -> isNotCastleThroughAttackedSquareMove(move, opponentsAttackableSquares))
+                .toList();
 
         return possiblyLegalMoves.stream()
+//                .filter(move -> isNotCastleThroughAttackedSquareMove(move, opponentsAttackableSquares))
                 .filter(possibleMove -> !wouldLeaveKingInCheck(possibleMove, whoseTurn))
                 .toList();
+    }
+
+    private boolean isNotCastleThroughAttackedSquareMove(MoveNew move, List<ChessboardPosition> opponentsAttackableSquares) {
+        if (!move.isCastleMove()){
+            return true;
+        }
+        ChessboardPosition squareOnCastlingKingsPath = new ChessboardPosition(move.getFrom().getX(), (move.getFrom().getY() + move.getTo().getY()) / 2 );
+        if (opponentsAttackableSquares.contains(squareOnCastlingKingsPath)){
+            return false;
+        }
+        return true;
     }
 
     private boolean wouldLeaveKingInCheck(MoveNew move, ChessColor whoseTurn) {
@@ -59,11 +74,11 @@ public class MoveHandler implements IMoveHandler{
 
     private boolean currentPlayerInCheck(ChessColor whoseTurn) {
         ChessboardPosition kingPosition = chessboard.getKingLocation(whoseTurn);
-        List<ChessboardPosition> opponentsAttackableSquares = getAttackableSquares(oppositeColor(whoseTurn), moveHistory);
+        List<ChessboardPosition> opponentsAttackableSquares = getAttackableSquares(oppositeColor(whoseTurn));
         return opponentsAttackableSquares.contains(kingPosition);
     }
 
-    protected List<ChessboardPosition> getAttackableSquares(ChessColor color, List<MoveNew> moveHistory) {
+    protected List<ChessboardPosition> getAttackableSquares(ChessColor color) {
         List<ChessboardPosition> attackableSquares = new ArrayList<>();
         for (PieceType piece : PieceType.values()){
             List<ChessboardPosition> locationsForPiece = chessboard.getLocationsOfPiece(piece, color);
