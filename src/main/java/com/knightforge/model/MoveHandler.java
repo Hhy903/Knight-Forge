@@ -4,6 +4,7 @@ import com.knightforge.model.ChessPieces.ChessPiece;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MoveHandler implements IMoveHandler{
     Chessboard chessboard;
@@ -95,7 +96,12 @@ public class MoveHandler implements IMoveHandler{
             List<ChessboardPosition> locationsForPiece = chessboard.getLocationsOfPiece(piece, color);
             if (!locationsForPiece.isEmpty()) {
                 for (ChessboardPosition position : locationsForPiece) {
-                    List<ChessboardPosition> possibleResultingPositions = getPotentiallyLegalMoves(position).stream()
+                    List<MoveNew> possiblyLegalMoves = getPotentiallyLegalMoves(position);
+                    List<MoveNew> tmp = getPotentiallyLegalMoves(position).stream()
+                            .filter(this::moveIsDiagonalIfPawnMove)
+                            .toList();
+
+                    List<ChessboardPosition> possibleResultingPositions = tmp.stream()
                             .map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY()))
                             .toList();;
                     attackableSquares.addAll(possibleResultingPositions);
@@ -103,6 +109,13 @@ public class MoveHandler implements IMoveHandler{
             }
         }
         return attackableSquares;
+    }
+
+    private boolean moveIsDiagonalIfPawnMove(MoveNew move) {
+        if (!Objects.equals(chessboard.getPieceAtPosition(move.getFrom()).getType(), PieceType.PAWN.name())){
+            return true;
+        }
+        return move.getTo().getY() != move.getFrom().getY();
     }
 
     public boolean executeMove(MoveNew move) {

@@ -40,14 +40,14 @@ public class Pawn extends ChessPiece {
         if (currentPosition.getY() + 1 < board.getLength() &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1).getColor() != color) {
-            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+1);
+            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, currentPosition.getY()+1);
             possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         //Diagonal 2
         if (currentPosition.getY() - 1 >= 0  &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1).getColor() != color) {
-            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX(), currentPosition.getY()-1);
+            ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, currentPosition.getY()-1);
             possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         if (moveHistory.isEmpty()) { return possibleMoves; }
