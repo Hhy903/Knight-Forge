@@ -31,22 +31,29 @@ public class MoveHandler implements IMoveHandler{
         if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             throw new IllegalStateException("Attempting to find legal moves for a piece whose turn it is not.");
         }
-        // Handle castling moves -- Cannot castle while in check, cannot castle through attack.
+
+        possiblyLegalMoves = filterOutInvalidCastlingMoves(possiblyLegalMoves, whoseTurn);
+
+        return possiblyLegalMoves.stream()
+                .filter(possibleMove -> !wouldLeaveKingInCheck(possibleMove, whoseTurn))
+                .toList();
+    }
+
+    private List<MoveNew> filterOutInvalidCastlingMoves(List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
+        // Cannot castle while in check
         if (currentPlayerInCheck(whoseTurn)) {
             possiblyLegalMoves = possiblyLegalMoves.stream()
                     .filter(possibleMove -> !possibleMove.isCastleMove())
                     .toList();
         }
 
+        // Cannot castle through attack.
         List<ChessboardPosition> opponentsAttackableSquares = getAttackableSquares(oppositeColor(whoseTurn));
         possiblyLegalMoves = possiblyLegalMoves.stream()
                 .filter(move -> isNotCastleThroughAttackedSquareMove(move, opponentsAttackableSquares))
                 .toList();
 
-        return possiblyLegalMoves.stream()
-//                .filter(move -> isNotCastleThroughAttackedSquareMove(move, opponentsAttackableSquares))
-                .filter(possibleMove -> !wouldLeaveKingInCheck(possibleMove, whoseTurn))
-                .toList();
+        return possiblyLegalMoves;
     }
 
     private boolean isNotCastleThroughAttackedSquareMove(MoveNew move, List<ChessboardPosition> opponentsAttackableSquares) {

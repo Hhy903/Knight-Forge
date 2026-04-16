@@ -27,7 +27,9 @@ public class ChessGame {
     }
 
     public boolean executeMove(MoveNew move) {
-        return moveHandler.executeMove(move);
+        boolean moveExecutionSuccess = moveHandler.executeMove(move);
+        switchTurns();
+        return moveExecutionSuccess;
     }
 
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
