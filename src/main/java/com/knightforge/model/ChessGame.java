@@ -1,11 +1,9 @@
 package com.knightforge.model;
 
+import java.util.List;
 import com.knightforge.model.ChessPieces.ChessPiece;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ChessGame {
+public class ChessGame implements ObservableChessGame{
     Chessboard chessboard;
     ChessColor whoseTurn;
     IMoveHandler moveHandler;
@@ -32,11 +30,20 @@ public class ChessGame {
         return moveExecutionSuccess;
     }
 
+    public void undoLastMove() {
+        moveHandler.undoLastMove();
+        switchTurns();
+    }
+
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
         return chessboard.getLocationsOfPiece(type, color);
     }
 
     private ChessColor oppositeColor(ChessColor color) {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+    }
+
+    public ChessPiece[][] getBoardState() {
+        return chessboard.getBoard();
     }
 }
