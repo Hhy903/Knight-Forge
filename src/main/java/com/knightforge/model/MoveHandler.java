@@ -30,7 +30,7 @@ public class MoveHandler implements IMoveHandler{
 
     private List<MoveNew> getLegalMoves(ChessboardPosition currentPosition, List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
         if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
-            throw new IllegalStateException("Attempting to find legal moves for a piece whose turn it is not.");
+            return new ArrayList<>();
         }
 
         possiblyLegalMoves = filterOutInvalidCastlingMoves(possiblyLegalMoves, whoseTurn);
@@ -72,13 +72,10 @@ public class MoveHandler implements IMoveHandler{
     private boolean wouldLeaveKingInCheck(MoveNew move, ChessColor whoseTurn) {
         // Make the move, store if current player is in check.
         executeMove(move);
-//        ChessPiece activePiece = chessboard.getPieceAtPosition(move.getFrom());
-//        ChessPiece capturedPiece = chessboard.movePiece(move.getFrom(), move.getTo());
         boolean inCheck = currentPlayerInCheck(whoseTurn);
 
         // Undo the move
         undoLastMove();
-//        chessboard.reverseMove(move.getTo(), move.getFrom(), activePiece, capturedPiece);
 
         return inCheck;
     }
