@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MoveHandlerTest {
     @Test
-    void testMakeSimpleMove() {
+    void testMakeSimpleMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -36,11 +36,11 @@ public class MoveHandlerTest {
 
         assertNull(loadedChessboard.getPieceAtPosition(7,0));
         assertNotNull(loadedChessboard.getPieceAtPosition(0,7));
-        assertTrue(Objects.equals(loadedChessboard.getPieceAtPosition(0, 7).getType(), PieceType.BISHOP.name()));
+        assertTrue(Objects.equals(loadedChessboard.getPieceAtPosition(0, 7).getType(), PieceType.BISHOP));
     }
 
     @Test
-    void testMakeCaptureMove() {
+    void testMakeCaptureMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -67,12 +67,12 @@ public class MoveHandlerTest {
 
         assertNull(loadedChessboard.getPieceAtPosition(7, 0));
         assertNotNull(loadedChessboard.getPieceAtPosition(3, 4));
-        assertEquals(PieceType.BISHOP.name(), loadedChessboard.getPieceAtPosition(3, 4).getType());
+        assertEquals(PieceType.BISHOP, loadedChessboard.getPieceAtPosition(3, 4).getType());
         assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(3, 4).getColor());
     }
 
     @Test
-    void testEnPassantCapture() {
+    void testEnPassantCapture() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -112,13 +112,13 @@ public class MoveHandlerTest {
         // Verify: Black pawn is captured, white pawn is in the en passant position
         assertNull(loadedChessboard.getPieceAtPosition(3, 3));
         assertNotNull(loadedChessboard.getPieceAtPosition(2, 3));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(2, 3).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(2, 3).getType());
         assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(2, 3).getColor());
         assertNull(loadedChessboard.getPieceAtPosition(3, 2));
     }
 
     @Test
-    void testEnPassantCapturesCheckingPawn() {
+    void testEnPassantCapturesCheckingPawn() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -164,14 +164,14 @@ public class MoveHandlerTest {
         // Verify: Black pawn is captured via en passant, check is resolved
         assertNull(loadedChessboard.getPieceAtPosition(3, 3));
         assertNotNull(loadedChessboard.getPieceAtPosition(2, 3));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(2, 3).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(2, 3).getType());
         assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(2, 3).getColor());
         assertNotNull(loadedChessboard.getPieceAtPosition(4, 4));
-        assertEquals(PieceType.KING.name(), loadedChessboard.getPieceAtPosition(4, 4).getType());
+        assertEquals(PieceType.KING, loadedChessboard.getPieceAtPosition(4, 4).getType());
     }
 
     @Test
-    void testUndoBasicMove() {
+    void testUndoBasicMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -204,12 +204,12 @@ public class MoveHandlerTest {
         // Verify board is back to original state
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 0));
         assertNull(loadedChessboard.getPieceAtPosition(0, 7));
-        assertEquals(PieceType.BISHOP.name(), loadedChessboard.getPieceAtPosition(7, 0).getType());
+        assertEquals(PieceType.BISHOP, loadedChessboard.getPieceAtPosition(7, 0).getType());
         assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(7, 0).getColor());
     }
 
     @Test
-    void testUndoCaptureMove() {
+    void testUndoCaptureMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -236,21 +236,21 @@ public class MoveHandlerTest {
         // Verify capture was executed
         assertNull(loadedChessboard.getPieceAtPosition(7, 0));
         assertNotNull(loadedChessboard.getPieceAtPosition(3, 4));
-        assertEquals(PieceType.BISHOP.name(), loadedChessboard.getPieceAtPosition(3, 4).getType());
+        assertEquals(PieceType.BISHOP, loadedChessboard.getPieceAtPosition(3, 4).getType());
 
         moveHandler.undoLastMove();
 
         // Verify board is back to original state with captured pawn restored
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 0));
-        assertEquals(PieceType.BISHOP.name(), loadedChessboard.getPieceAtPosition(7, 0).getType());
+        assertEquals(PieceType.BISHOP, loadedChessboard.getPieceAtPosition(7, 0).getType());
         assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(7, 0).getColor());
         assertNotNull(loadedChessboard.getPieceAtPosition(3, 4));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(3, 4).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(3, 4).getType());
         assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(3, 4).getColor());
     }
 
     @Test
-    void testUndoCastlingMove() {
+    void testUndoCastlingMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -284,15 +284,15 @@ public class MoveHandlerTest {
 
         // Verify board is back to original state
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 4));
-        assertEquals(PieceType.KING.name(), loadedChessboard.getPieceAtPosition(7, 4).getType());
+        assertEquals(PieceType.KING, loadedChessboard.getPieceAtPosition(7, 4).getType());
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 7));
-        assertEquals(PieceType.ROOK.name(), loadedChessboard.getPieceAtPosition(7, 7).getType());
+        assertEquals(PieceType.ROOK, loadedChessboard.getPieceAtPosition(7, 7).getType());
         assertNull(loadedChessboard.getPieceAtPosition(7, 6));
         assertNull(loadedChessboard.getPieceAtPosition(7, 5));
     }
 
     @Test
-    void testUndoEnPassantMove() {
+    void testUndoEnPassantMove() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -332,17 +332,17 @@ public class MoveHandlerTest {
         // Verify en passant was executed
         assertNull(loadedChessboard.getPieceAtPosition(3, 3));
         assertNotNull(loadedChessboard.getPieceAtPosition(2, 3));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(2, 3).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(2, 3).getType());
         assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(2, 3).getColor());
 
         moveHandler.undoLastMove();
 
         // Verify board is back to state before en passant
         assertNotNull(loadedChessboard.getPieceAtPosition(3, 2));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(3, 2).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(3, 2).getType());
         assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(3, 2).getColor());
         assertNotNull(loadedChessboard.getPieceAtPosition(3, 3));
-        assertEquals(PieceType.PAWN.name(), loadedChessboard.getPieceAtPosition(3, 3).getType());
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(3, 3).getType());
         assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(3, 3).getColor());
         assertNull(loadedChessboard.getPieceAtPosition(2, 3));
     }

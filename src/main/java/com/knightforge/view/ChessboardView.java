@@ -2,11 +2,8 @@ package com.knightforge.view;
 
 import com.knightforge.controller.ChessGameController;
 import com.knightforge.controller.ClickController;
-import com.knightforge.model.BoardState;
+import com.knightforge.model.*;
 import com.knightforge.model.ChessPieces.ChessPiece;
-import com.knightforge.model.ChessboardPosition;
-import com.knightforge.model.MoveNew;
-import com.knightforge.model.ObservableChessGame;
 
 import javax.swing.*;
 import java.awt.*;

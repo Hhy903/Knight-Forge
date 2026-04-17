@@ -41,21 +41,21 @@ public class ChessboardTest {
         Chessboard chessboard = new Chessboard();
         ChessPiece[][] board = chessboard.getBoard();
 
-        String[] chessPiecesWhite = Arrays.stream(board)
+        PieceType[] chessPiecesWhite = Arrays.stream(board)
                 .flatMap(Arrays::stream) // Flattens 2D array into a Stream of elements
                 .filter(Objects::nonNull)
                 .filter(piece -> piece.getColor() == ChessColor.WHITE) // Retains only null values
                 .map(ChessPiece::getType)
-                .toArray(String[]::new);
-        String[] chessPiecesBlack = Arrays.stream(board)
+                .toArray(PieceType[]::new);
+        PieceType[] chessPiecesBlack = Arrays.stream(board)
                 .flatMap(Arrays::stream) // Flattens 2D array into a Stream of elements
                 .filter(Objects::nonNull)
                 .filter(piece -> piece.getColor() == ChessColor.BLACK) // Retains only null values
                 .map(ChessPiece::getType)
-                .toArray(String[]::new);
-        String[] chessPiecesExpected =
-                {"PAWN", "PAWN",   "PAWN",   "PAWN",  "PAWN", "PAWN",   "PAWN",   "PAWN",
-                 "ROOK", "KNIGHT", "BISHOP", "QUEEN", "KING", "BISHOP", "KNIGHT", "ROOK"};
+                .toArray(PieceType[]::new);
+        PieceType[] chessPiecesExpected =
+                {PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN,
+                        PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
         Arrays.sort(chessPiecesWhite);
         Arrays.sort(chessPiecesBlack);
         Arrays.sort(chessPiecesExpected);

@@ -76,7 +76,7 @@ public class KingTest {
     }
 
     @Test
-    void testStandardCastling() {
+    void testStandardCastling() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
@@ -106,8 +106,8 @@ public class KingTest {
         assertNull(loadedChessboard.getPieceAtPosition(7, 7));
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 6));
         assertNotNull(loadedChessboard.getPieceAtPosition(7, 5));
-        assertEquals(PieceType.KING.name(), loadedChessboard.getPieceAtPosition(7, 6).getType());
-        assertEquals(PieceType.ROOK.name(), loadedChessboard.getPieceAtPosition(7, 5).getType());
+        assertEquals(PieceType.KING, loadedChessboard.getPieceAtPosition(7, 6).getType());
+        assertEquals(PieceType.ROOK, loadedChessboard.getPieceAtPosition(7, 5).getType());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class KingTest {
     }
 
     @Test
-    void testCannotCastleAfterRookMoved() {
+    void testCannotCastleAfterRookMoved() throws PromotionRequiredException {
         Chessboard loadedChessboard = new Chessboard();
         loadedChessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",

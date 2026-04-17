@@ -28,11 +28,14 @@ public class ChessGame implements ObservableChessGame{
         return moveHandler.getValidMoves(whoseTurn, currentPosition);
     }
 
-    public boolean executeMove(MoveNew move) {
-        boolean moveExecutionSuccess = moveHandler.executeMove(move);
+    public void executeMove(MoveNew move) throws PromotionRequiredException {
+        moveHandler.executeMove(move);
         switchTurns();
         notifyObservers();
-        return moveExecutionSuccess;
+    }
+
+    public void executePromotionMove(MoveNew move, PieceType type) {
+        moveHandler.executePromotionMove(move, type);
     }
 
     public void undoLastMove() {
