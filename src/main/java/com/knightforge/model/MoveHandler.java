@@ -1,6 +1,7 @@
 package com.knightforge.model;
 
 import com.knightforge.model.ChessPieces.ChessPiece;
+import com.knightforge.model.ChessPieces.Pawn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class MoveHandler implements IMoveHandler{
     private List<MoveNew> getLegalMoves(ChessboardPosition currentPosition, List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
         if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             return new ArrayList<>();
+//            throw new IllegalStateException("Attempting to find legal moves for a piece whose turn it is not.");
         }
 
         possiblyLegalMoves = filterOutInvalidCastlingMoves(possiblyLegalMoves, whoseTurn);
@@ -62,16 +64,19 @@ public class MoveHandler implements IMoveHandler{
             return true;
         }
         ChessboardPosition squareOnCastlingKingsPath = new ChessboardPosition(move.getFrom().getX(), (move.getFrom().getY() + move.getTo().getY()) / 2 );
-        if (opponentsAttackableSquares.contains(squareOnCastlingKingsPath)){
-            return false;
-        }
-        return true;
+
+        return !opponentsAttackableSquares.contains(squareOnCastlingKingsPath);
     }
 
     // TODO:
     private boolean wouldLeaveKingInCheck(MoveNew move, ChessColor whoseTurn) {
         // Make the move, store if current player is in check.
-        executeMove(move);
+        if (isPawnPromotion(move)) {
+            executeInternal(move, PieceType.QUEEN);
+        }
+        else {
+            executeInternal(move, null);
+        }
         boolean inCheck = currentPlayerInCheck(whoseTurn);
 
         // Undo the move
@@ -115,16 +120,29 @@ public class MoveHandler implements IMoveHandler{
         return move.getTo().getY() != move.getFrom().getY();
     }
 
-    public boolean executeMove(MoveNew move) {
+    public void executeMove(MoveNew move) throws PromotionRequiredException{
+        if (isPawnPromotion(move)) {
+            throw new PromotionRequiredException();
+        }
+        executeInternal(move, null);
+    }
+
+    public void executePromotionMove(MoveNew move, PieceType desiredPiece){
+        executeInternal(move, desiredPiece);
+    }
+
+    private void executeInternal(MoveNew move, PieceType promotionPiece){
         chessboard.movePiece(move.getFrom(), move.getTo());
-        moveHistory.add(move);
-        if (move.isEnPassant()) {
+        if (promotionPiece != null) {
+            chessboard.createAndPlacePiece(promotionPiece, move.getActivePiece().getColor(), move.getTo());
+        }
+        else if (move.isEnPassant()) {
             chessboard.capture(move.getEnPassantCaptureLocation());
         }
-        if (move.isCastleMove()) {
+        else if (move.isCastleMove()) {
             chessboard.movePiece(move.getRookPositionInvolvedInCastle(), new ChessboardPosition(move.getFrom().getX(), (move.getTo().getY() + move.getFrom().getY())/2));
         }
-        return false;
+        moveHistory.add(move);
     }
 
     public boolean undoLastMove() {
@@ -145,6 +163,8 @@ public class MoveHandler implements IMoveHandler{
         // Standard Move
         else {
             chessboard.movePiece(lastMove.getTo(), lastMove.getFrom());
+            // Ensure piece that was moved in the first place is moves, not current piece (needed for promotion undo)
+            chessboard.placePiece(lastMove.getActivePiece(), lastMove.getFrom());
             chessboard.placePiece(lastMove.getInvolvedPiece(), lastMove.getTo());
         }
         // Remove the move from the moveHistory.
@@ -154,5 +174,9 @@ public class MoveHandler implements IMoveHandler{
 
     private ChessColor oppositeColor(ChessColor color) {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
+    }
+
+    private boolean isPawnPromotion(MoveNew move) {
+        return move.getActivePiece().getType().equals(PieceType.PAWN) && (move.getTo().getX() == 0 || move.getTo().getX() == 7);
     }
 }

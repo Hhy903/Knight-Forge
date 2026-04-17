@@ -1,6 +1,7 @@
 package com.knightforge.view;
 
 import com.knightforge.controller.ChessGameController;
+import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessGame;
 import com.knightforge.model.ObservableChessGame;
 
@@ -125,4 +126,23 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
     public void updateGameState() {
         updateStatus(chessGameModel.getGameStatus());
     }
+
+    public String getDesiredPromotion(String[] promotionOptions, ChessColor color) {
+        String selection = (String) JOptionPane.showInputDialog(
+                this,
+                color.getName() + " promotion: choose a piece",
+                "Promotion",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                promotionOptions,
+                promotionOptions[0]
+        );
+
+        if (selection == null) {
+            return "Queen";
+        }
+
+        return selection;
+    }
+
 }

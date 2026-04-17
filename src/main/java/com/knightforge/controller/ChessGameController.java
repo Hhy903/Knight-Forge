@@ -1,8 +1,6 @@
 package com.knightforge.controller;
 
-import com.knightforge.model.ChessGame;
-import com.knightforge.model.ChessboardPosition;
-import com.knightforge.model.MoveNew;
+import com.knightforge.model.*;
 import com.knightforge.view.ChessGameView;
 
 import java.util.ArrayList;
@@ -44,7 +42,24 @@ public class ChessGameController {
     }
 
     public void executeMove(ChessboardPosition from, ChessboardPosition to) {
-        Optional<MoveNew> moveToMake = possibleMoves.stream().filter(move -> move.getTo().equals(to)).findFirst();
-        moveToMake.ifPresent(moveNew -> chessGameModel.executeMove(moveNew));
+        Optional<MoveNew> moveToMake = possibleMoves.stream().filter(move -> move.getTo().equals(to) && move.getFrom().equals(from)).findFirst();
+        if (moveToMake.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        try {
+            chessGameModel.executeMove(moveToMake.get());
+        } catch (PromotionRequiredException e){
+            String[] options = {"Queen", "Rook", "Bishop", "Knight"};
+            String selection = chessGameView.getDesiredPromotion(options, moveToMake.get().getActivePiece().getColor());
+
+            PieceType promotionPiece = switch (selection) {
+                case "Rook" -> PieceType.ROOK;
+                case "Bishop" -> PieceType.BISHOP;
+                case "Knight" -> PieceType.KNIGHT;
+                default -> PieceType.QUEEN;
+            };
+
+            chessGameModel.executePromotionMove(moveToMake.get(), promotionPiece);
+        }
     }
 }

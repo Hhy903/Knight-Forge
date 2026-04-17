@@ -33,7 +33,7 @@ public class MoveNew {
     public ChessPiece getInvolvedPiece() { return this.involvedPiece; }
 
     public boolean wasTwoSquarePawnMove() {
-        return (activePiece.getType().equals("PAWN") && Math.abs(from.getX() - to.getX()) == 2);
+        return (activePiece.getType().equals(PieceType.PAWN) && Math.abs(from.getX() - to.getX()) == 2);
     }
 
     public boolean isEnPassant() { return (enPassantCaptureLocation != null); }

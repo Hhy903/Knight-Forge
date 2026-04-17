@@ -27,7 +27,7 @@ public class Chessboard {
         List<ChessboardPosition> positions = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] != null && board[row][col].getColor() == color && board[row][col].getType().equals(type.name())){
+                if (board[row][col] != null && board[row][col].getColor() == color && board[row][col].getType().equals(type)){
                     positions.add(new ChessboardPosition(row, col));
                 }
             }
@@ -53,7 +53,7 @@ public class Chessboard {
     public ChessboardPosition getKingLocation(ChessColor color) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] != null && board[row][col].getColor() == color && Objects.equals(board[row][col].getType(), "KING")){
+                if (board[row][col] != null && board[row][col].getColor() == color && Objects.equals(board[row][col].getType(), PieceType.KING)){
                     return new ChessboardPosition(row, col);
                 }
             }
@@ -70,6 +70,11 @@ public class Chessboard {
 
     public void placePiece(ChessPiece piece, ChessboardPosition location){
         board[location.getX()][location.getY()] = piece;
+    }
+
+    public void createAndPlacePiece(PieceType type, ChessColor color, ChessboardPosition location) {
+        ChessPiece newPiece = chessPieceFactory.createPiece(type, color);
+        placePiece(newPiece, location);
     }
 
     private void setupInitialPieces() {
