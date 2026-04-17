@@ -36,6 +36,8 @@ public class ChessGame implements ObservableChessGame{
 
     public void executePromotionMove(MoveNew move, PieceType type) {
         moveHandler.executePromotionMove(move, type);
+        switchTurns();
+        notifyObservers();
     }
 
     public void undoLastMove() {
