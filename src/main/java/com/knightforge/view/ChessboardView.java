@@ -13,7 +13,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChessboardView extends JComponent {
+public class ChessboardView extends JComponent implements ChessGameObserver{
     private static final int LABEL_MARGIN = 24;
     private final int CHESS_SIZE;
 
@@ -34,7 +34,7 @@ public class ChessboardView extends JComponent {
         CHESS_SIZE = width / 8;
         System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
 
-//        gameSession.addListener(this);
+        chessGame.addObserver(this);
         refreshBoard();
     }
 
@@ -122,5 +122,10 @@ public class ChessboardView extends JComponent {
         }
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void updateGameState() {
+        refreshBoard();
     }
 }

@@ -1,12 +1,15 @@
 package com.knightforge.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.knightforge.model.ChessPieces.ChessPiece;
+import com.knightforge.view.ChessGameObserver;
 
 public class ChessGame implements ObservableChessGame{
     Chessboard chessboard;
     ChessColor whoseTurn;
     IMoveHandler moveHandler;
+    List<ChessGameObserver> observers = new ArrayList<>();
 
     public ChessGame(Chessboard chessboard) {
         this.chessboard = chessboard;
@@ -28,12 +31,14 @@ public class ChessGame implements ObservableChessGame{
     public boolean executeMove(MoveNew move) {
         boolean moveExecutionSuccess = moveHandler.executeMove(move);
         switchTurns();
+        notifyObservers();
         return moveExecutionSuccess;
     }
 
     public void undoLastMove() {
         moveHandler.undoLastMove();
         switchTurns();
+        notifyObservers();
     }
 
     public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
@@ -46,5 +51,19 @@ public class ChessGame implements ObservableChessGame{
 
     public ChessPiece[][] getBoardState() {
         return chessboard.getBoard();
+    }
+
+    // TODO: add additional status information?
+    @Override
+    public String getGameStatus() {
+        return whoseTurn.getName() + " to Move";
+    }
+
+    @Override
+    public void addObserver(ChessGameObserver observer) {
+        observers.add(observer);
+    }
+    private void notifyObservers() {
+        observers.forEach(ChessGameObserver::updateGameState);
     }
 }
