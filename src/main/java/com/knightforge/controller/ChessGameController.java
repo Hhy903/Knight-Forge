@@ -18,6 +18,23 @@ public class ChessGameController {
         chessGameView = new ChessGameView(this, chessGameModel);
         chessGameView.createView();
         chessGameView.createControls();
+        chessGameModel.setup();
+    }
+
+    public void handleSquareClick(ChessboardPosition position) {
+        chessGameModel.selectPosition(position);
+
+        if (chessGameModel.getState().mode() == GameMode.AWAITING_PROMOTION) {
+            String[] options = {"Queen", "Rook", "Bishop", "Knight"};
+            String selection = chessGameView.getDesiredPromotion(options);
+            PieceType promotionPiece = switch (selection) {
+                case "Rook" -> PieceType.ROOK;
+                case "Bishop" -> PieceType.BISHOP;
+                case "Knight" -> PieceType.KNIGHT;
+                default -> PieceType.QUEEN;
+            };
+            chessGameModel.handlePromotionSelection(promotionPiece);
+        }
     }
 
     public void showView(){
@@ -39,27 +56,5 @@ public class ChessGameController {
     public List<ChessboardPosition> getPossibleMoves(ChessboardPosition position){
         possibleMoves = chessGameModel.getAllPossibleMoves(position);
         return possibleMoves.stream().map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY())).toList();
-    }
-
-    public void executeMove(ChessboardPosition from, ChessboardPosition to) {
-        Optional<MoveNew> moveToMake = possibleMoves.stream().filter(move -> move.getTo().equals(to) && move.getFrom().equals(from)).findFirst();
-        if (moveToMake.isEmpty()) {
-            throw new IllegalStateException();
-        }
-        try {
-            chessGameModel.executeMove(moveToMake.get());
-        } catch (PromotionRequiredException e){
-            String[] options = {"Queen", "Rook", "Bishop", "Knight"};
-            String selection = chessGameView.getDesiredPromotion(options, moveToMake.get().getActivePiece().getColor());
-
-            PieceType promotionPiece = switch (selection) {
-                case "Rook" -> PieceType.ROOK;
-                case "Bishop" -> PieceType.BISHOP;
-                case "Knight" -> PieceType.KNIGHT;
-                default -> PieceType.QUEEN;
-            };
-
-            chessGameModel.executePromotionMove(moveToMake.get(), promotionPiece);
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.knightforge.model.ChessPiecesTest;
 
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,36 +8,34 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class QueenTest {
+
     @Test
-    void testInitialSetup(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetup() {
+        Chessboard chessboard = new Chessboard();
 
-        List<ChessboardPosition> blackQueenPositions = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.BLACK);
-        List<ChessboardPosition> whiteQueenPositions = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE);
-        int expectedNumberOfQueensPerColor = 1;
+        List<ChessboardPosition> blackQueenPositions = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.BLACK);
+        List<ChessboardPosition> whiteQueenPositions = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE);
 
-        assertEquals(expectedNumberOfQueensPerColor, blackQueenPositions.size());
-        assertEquals(expectedNumberOfQueensPerColor, whiteQueenPositions.size());
+        assertEquals(1, blackQueenPositions.size());
+        assertEquals(1, whiteQueenPositions.size());
     }
 
     @Test
     void testInitialSetupValidMoves() {
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+        Chessboard chessboard = new Chessboard();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        List<ChessboardPosition> blackQueenPositions = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.BLACK);
-        List<ChessboardPosition> whiteQueenPositions = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE);
+        List<ChessboardPosition> whiteQueenPositions = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE);
+        List<ChessboardPosition> blackQueenPositions = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.BLACK);
 
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteQueenPositions.get(0)).size());
-        chessGame.switchTurns();
-        assertEquals(0, chessGame.getAllPossibleMoves(blackQueenPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteQueenPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackQueenPositions.get(0)).size());
     }
 
     @Test
     void testStandardMovementFromStart() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -47,17 +44,17 @@ public class QueenTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteQueenPosition = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteQueenPosition = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
 
-        assertEquals(25, chessGame.getAllPossibleMoves(whiteQueenPosition).size());
+        assertEquals(25, moveHandler.getValidMoves(ChessColor.WHITE, whiteQueenPosition).size());
     }
 
     @Test
     void testBlockedMovementFromStart() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- wP -- -- --",
                 "-- -- wP -- -- -- -- --",
@@ -66,17 +63,17 @@ public class QueenTest {
                 "-- -- -- -- bP -- -- --",
                 "-- -- wR -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteQueenPosition = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteQueenPosition = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
 
-        assertEquals(15, chessGame.getAllPossibleMoves(whiteQueenPosition).size());
+        assertEquals(15, moveHandler.getValidMoves(ChessColor.WHITE, whiteQueenPosition).size());
     }
 
     @Test
     void testCantCauseCheckWithMovement() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "wK -- -- -- wP -- -- --",
                 "-- -- wP -- -- -- -- --",
@@ -85,10 +82,10 @@ public class QueenTest {
                 "-- -- -- -- bB -- -- --",
                 "-- -- wR -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteQueenPosition = chessGame.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteQueenPosition = chessboard.getLocationsOfPiece(PieceType.QUEEN, ChessColor.WHITE).get(0);
 
-        assertEquals(3, chessGame.getAllPossibleMoves(whiteQueenPosition).size());
+        assertEquals(3, moveHandler.getValidMoves(ChessColor.WHITE, whiteQueenPosition).size());
     }
 }

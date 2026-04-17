@@ -1,45 +1,41 @@
 package com.knightforge.model.ChessPiecesTest;
 
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class KingTest {
+
     @Test
-    void testInitialSetup(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetup() {
+        Chessboard chessboard = new Chessboard();
 
-        List<ChessboardPosition> blackKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
-        List<ChessboardPosition> whiteKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
-        int expectedNumberOfKingsPerColor = 1;
+        List<ChessboardPosition> blackKingPositions = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
+        List<ChessboardPosition> whiteKingPositions = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
 
-        assertEquals(expectedNumberOfKingsPerColor, blackKingPositions.size());
-        assertEquals(expectedNumberOfKingsPerColor, whiteKingPositions.size());
+        assertEquals(1, blackKingPositions.size());
+        assertEquals(1, whiteKingPositions.size());
     }
 
     @Test
-    void testInitialSetupValidMoves(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetupValidMoves() {
+        Chessboard chessboard = new Chessboard();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        List<ChessboardPosition> blackKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
-        List<ChessboardPosition> whiteKingPositions = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
+        List<ChessboardPosition> whiteKingPositions = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE);
+        List<ChessboardPosition> blackKingPositions = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK);
 
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteKingPositions.get(0)).size());
-        chessGame.switchTurns();
-        assertEquals(0, chessGame.getAllPossibleMoves(blackKingPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteKingPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackKingPositions.get(0)).size());
     }
 
     @Test
-    void testCanMoveInAllDirections(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testCanMoveInAllDirections() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -48,17 +44,17 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
 
-        assertEquals(8, chessGame.getAllPossibleMoves(kingPosition).size());
+        assertEquals(8, moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).size());
     }
 
     @Test
-    void testCorrectMovementWithBlockers(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testCorrectMovementWithBlockers() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- bK bP -- -- -- --",
                 "-- -- wP -- -- -- -- --",
@@ -67,18 +63,17 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
-        chessGame.switchTurns();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = chessGame.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK).get(0);
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.BLACK).get(0);
 
-        assertEquals(6, chessGame.getAllPossibleMoves(kingPosition).size());
+        assertEquals(6, moveHandler.getValidMoves(ChessColor.BLACK, kingPosition).size());
     }
 
     @Test
     void testStandardCastling() throws PromotionRequiredException {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -87,12 +82,11 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR -- -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
         List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        // Kingside castle
         MoveNew castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
@@ -101,19 +95,18 @@ public class KingTest {
 
         moveHandler.executeMove(castleKingside);
 
-        // Verify king and rook positions after castling
-        assertNull(loadedChessboard.getPieceAtPosition(7, 4));
-        assertNull(loadedChessboard.getPieceAtPosition(7, 7));
-        assertNotNull(loadedChessboard.getPieceAtPosition(7, 6));
-        assertNotNull(loadedChessboard.getPieceAtPosition(7, 5));
-        assertEquals(PieceType.KING, loadedChessboard.getPieceAtPosition(7, 6).getType());
-        assertEquals(PieceType.ROOK, loadedChessboard.getPieceAtPosition(7, 5).getType());
+        assertNull(chessboard.getPieceAtPosition(7, 4));
+        assertNull(chessboard.getPieceAtPosition(7, 7));
+        assertNotNull(chessboard.getPieceAtPosition(7, 6));
+        assertNotNull(chessboard.getPieceAtPosition(7, 5));
+        assertEquals(PieceType.KING, chessboard.getPieceAtPosition(7, 6).getType());
+        assertEquals(PieceType.ROOK, chessboard.getPieceAtPosition(7, 5).getType());
     }
 
     @Test
     void testCannotCastleWhileInCheck() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- bR -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -122,12 +115,11 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR -- -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
         List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        // Should not be able to castle (kingside or queenside)
         MoveNew castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
@@ -143,8 +135,8 @@ public class KingTest {
 
     @Test
     void testCannotCastleThroughAttack() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- bR -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -153,12 +145,11 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR -- -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
         List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        // Should not be able to castle kingside (f1 is under attack)
         MoveNew castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
@@ -168,8 +159,8 @@ public class KingTest {
 
     @Test
     void testCannotCastleAfterRookMoved() throws PromotionRequiredException {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -178,53 +169,43 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR -- -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        // Move the kingside rook and then move it back
-        ChessboardPosition rookPosition = loadedChessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).stream()
+        ChessboardPosition rookPosition = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).stream()
                 .filter(pos -> pos.getY() == 7)
                 .findFirst()
-                .orElse(null);
-        assertNotNull(rookPosition);
+                .orElseThrow();
 
-        List<MoveNew> rookMoves = moveHandler.getValidMoves(ChessColor.WHITE, rookPosition);
-        MoveNew moveRookAway = rookMoves.stream()
+        MoveNew moveRookAway = moveHandler.getValidMoves(ChessColor.WHITE, rookPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
-                .orElse(null);
-        assertNotNull(moveRookAway);
+                .orElseThrow();
         moveHandler.executeMove(moveRookAway);
 
-        // Move rook back to original position
-        ChessboardPosition movedRookPosition = loadedChessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).stream()
+        ChessboardPosition movedRookPosition = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).stream()
                 .filter(pos -> pos.getY() == 6)
                 .findFirst()
-                .orElse(null);
-        assertNotNull(movedRookPosition);
+                .orElseThrow();
 
-        List<MoveNew> rookMovesBack = moveHandler.getValidMoves(ChessColor.WHITE, movedRookPosition);
-        MoveNew moveRookBack = rookMovesBack.stream()
+        MoveNew moveRookBack = moveHandler.getValidMoves(ChessColor.WHITE, movedRookPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 7)
                 .findFirst()
-                .orElse(null);
-        assertNotNull(moveRookBack);
+                .orElseThrow();
         moveHandler.executeMove(moveRookBack);
 
-        // Now try to castle - should not be allowed
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
-
-        MoveNew castleKingside = kingMoves.stream()
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        MoveNew castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
+
         assertNull(castleKingside);
     }
 
     @Test
     void testCannotCastleIntoCheck() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- bR --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -233,23 +214,21 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR -- -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
-
-        // Should not be able to castle kingside (g1 is under attack where king would land)
-        MoveNew castleKingside = kingMoves.stream()
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        MoveNew castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
+
         assertNull(castleKingside);
     }
 
     @Test
     void testCannotCastleQueensideWithPieceInWay() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -258,16 +237,14 @@ public class KingTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "wR wN -- -- wK -- -- wR"));
-        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
-
-        // Should not be able to castle queenside (knight is blocking the path)
-        MoveNew castleQueenside = kingMoves.stream()
+        ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
+        MoveNew castleQueenside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 2)
                 .findFirst()
                 .orElse(null);
+
         assertNull(castleQueenside);
     }
 }

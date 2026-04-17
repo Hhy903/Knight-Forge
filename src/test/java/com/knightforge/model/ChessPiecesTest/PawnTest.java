@@ -1,65 +1,58 @@
 package com.knightforge.model.ChessPiecesTest;
 
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PawnTest {
+
     @Test
-    void testInitialSetup(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetup() {
+        Chessboard chessboard = new Chessboard();
 
-        List<ChessboardPosition> blackPawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
-        List<ChessboardPosition> whitePawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
-        int expectedNumberOfPawnsPerColor = 8;
+        List<ChessboardPosition> blackPawnPositions = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
+        List<ChessboardPosition> whitePawnPositions = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
 
-        assertEquals(expectedNumberOfPawnsPerColor, blackPawnPositions.size());
-        assertEquals(expectedNumberOfPawnsPerColor, whitePawnPositions.size());
+        assertEquals(8, blackPawnPositions.size());
+        assertEquals(8, whitePawnPositions.size());
     }
 
     @Test
     void testInitialSetupValidMoves() {
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+        Chessboard chessboard = new Chessboard();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        List<ChessboardPosition> whitePawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
-        List<ChessboardPosition> blackPawnPositions = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
+        List<ChessboardPosition> whitePawnPositions = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE);
+        List<ChessboardPosition> blackPawnPositions = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK);
 
-        // Test white pawns on edge and in middle
-        ChessboardPosition whitePawnPositionOnEdge = whitePawnPositions.stream()
+        ChessboardPosition whitePawnOnEdge = whitePawnPositions.stream()
                 .filter(pos -> pos.getY() == 0)
                 .findFirst().orElseThrow();
-        ChessboardPosition whitePawnPositionInMiddle = whitePawnPositions.stream()
+        ChessboardPosition whitePawnInMiddle = whitePawnPositions.stream()
                 .filter(pos -> pos.getY() == 3)
                 .findFirst().orElseThrow();
 
-        assertEquals(2, chessGame.getAllPossibleMoves(whitePawnPositionOnEdge).size());
-        assertEquals(2, chessGame.getAllPossibleMoves(whitePawnPositionInMiddle).size());
+        assertEquals(2, moveHandler.getValidMoves(ChessColor.WHITE, whitePawnOnEdge).size());
+        assertEquals(2, moveHandler.getValidMoves(ChessColor.WHITE, whitePawnInMiddle).size());
 
-        chessGame.switchTurns();
-
-        // Test black pawns on edge and in middle
-        ChessboardPosition blackPawnPositionOnEdge = blackPawnPositions.stream()
+        ChessboardPosition blackPawnOnEdge = blackPawnPositions.stream()
                 .filter(pos -> pos.getY() == 0)
                 .findFirst().orElseThrow();
-        ChessboardPosition blackPawnPositionInMiddle = blackPawnPositions.stream()
+        ChessboardPosition blackPawnInMiddle = blackPawnPositions.stream()
                 .filter(pos -> pos.getY() == 3)
                 .findFirst().orElseThrow();
 
-        assertEquals(2, chessGame.getAllPossibleMoves(blackPawnPositionOnEdge).size());
-        assertEquals(2, chessGame.getAllPossibleMoves(blackPawnPositionInMiddle).size());
+        assertEquals(2, moveHandler.getValidMoves(ChessColor.BLACK, blackPawnOnEdge).size());
+        assertEquals(2, moveHandler.getValidMoves(ChessColor.BLACK, blackPawnInMiddle).size());
     }
 
     @Test
     void testBlockedMovementFromStart() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -68,17 +61,17 @@ public class PawnTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
+        ChessboardPosition whitePawnPosition = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
-        assertEquals(1, chessGame.getAllPossibleMoves(whitePawnPosition).size());
+        assertEquals(1, moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition).size());
     }
 
     @Test
     void testOptionalAttack() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -87,17 +80,17 @@ public class PawnTest {
                 "-- -- -- bP -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
+        ChessboardPosition whitePawnPosition = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
-        assertEquals(3, chessGame.getAllPossibleMoves(whitePawnPosition).size());
+        assertEquals(3, moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition).size());
     }
 
     @Test
     void testCantCauseCheckWithMovement() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- bB --",
@@ -106,10 +99,29 @@ public class PawnTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- wP -- -- -- -- --",
                 "-- wK -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whitePawnPosition = chessGame.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
+        ChessboardPosition whitePawnPosition = chessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
 
-        assertEquals(0, chessGame.getAllPossibleMoves(whitePawnPosition).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition).size());
+    }
+
+    @Test
+    void testCantCauseCheckWithMovementBlack() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- wB -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- bN -- -- -- --",
+                "-- -- bK -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(chessboard);
+
+        ChessboardPosition blackKnightPosition = chessboard.getLocationsOfPiece(PieceType.KNIGHT, ChessColor.BLACK).get(0);
+
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackKnightPosition).size());
     }
 }

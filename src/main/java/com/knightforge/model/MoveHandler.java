@@ -32,7 +32,6 @@ public class MoveHandler implements IMoveHandler{
     private List<MoveNew> getLegalMoves(ChessboardPosition currentPosition, List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
         if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             return new ArrayList<>();
-//            throw new IllegalStateException("Attempting to find legal moves for a piece whose turn it is not.");
         }
 
         possiblyLegalMoves = filterOutInvalidCastlingMoves(possiblyLegalMoves, whoseTurn);

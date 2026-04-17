@@ -32,7 +32,6 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
         System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
 
         chessGame.addObserver(this);
-        refreshBoard();
     }
 
     // TODO: make this class implement observer add
@@ -40,20 +39,18 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
 //
 //    }
 
-    private void refreshBoard() {
+    private void refreshBoard(ChessPiece[][] board, List<ChessboardPosition> currentLegalMoves) {
         removeAll();
-        // Pull Observer Pattern
-        ChessPiece[][] board = chessGame.getBoardState();
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[0].length; col++) {
-                refreshSquare(row, col, board);
+                refreshSquare(row, col, board, currentLegalMoves);
             }
         }
         revalidate();
         repaint();
     }
 
-    private void refreshSquare(int row, int col, ChessPiece[][] board) {
+    private void refreshSquare(int row, int col, ChessPiece[][] board, List<ChessboardPosition> currentLegalMoves) {
         ChessboardPosition point = new ChessboardPosition(row, col);
         ChessPiece pieceAtPosition = board[row][col];
 
@@ -65,6 +62,10 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
                 CHESS_SIZE
         );
 
+        if (currentLegalMoves.contains(point)){
+            component.setMoveHint(true);
+        }
+
         chessComponents[row][col] = component;
         add(component);
     }
@@ -73,28 +74,29 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
     }
 
     public void handleSquareClick(ChessboardPosition selectedPosition) {
-        if (currentlySelectedSquare == null) {
-            // First click - select piece and show moves
-            currentlySelectedSquare = selectedPosition;
-            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
-            showPossibleMoves();
-        }
-        else if (currentlySelectedSquare.equals(selectedPosition)) {
-            // Click same square - deselect
-            clearSelection();
-        }
-        else if (currentlyPossibleMoves.contains(selectedPosition)) {
-            // Click valid move destination - execute move
-            chessGameController.executeMove(currentlySelectedSquare, selectedPosition);
-            clearSelection();
-        }
-        else {
-            // Click different piece - reselect
-            clearSelection();
-            currentlySelectedSquare = selectedPosition;
-            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
-            showPossibleMoves();
-        }
+//        if (currentlySelectedSquare == null) {
+//            // First click - select piece and show moves
+//            currentlySelectedSquare = selectedPosition;
+//            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
+//            showPossibleMoves();
+//        }
+//        else if (currentlySelectedSquare.equals(selectedPosition)) {
+//            // Click same square - deselect
+//            clearSelection();
+//        }
+//        else if (currentlyPossibleMoves.contains(selectedPosition)) {
+//            // Click valid move destination - execute move
+//            chessGameController.executeMove(currentlySelectedSquare, selectedPosition);
+//            clearSelection();
+//        }
+//        else {
+//            // Click different piece - reselect
+//            clearSelection();
+//            currentlySelectedSquare = selectedPosition;
+//            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
+//            showPossibleMoves();
+//        }
+        chessGameController.handleSquareClick(selectedPosition);
     }
 
     private void clearSelection() {
@@ -122,7 +124,7 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
     }
 
     @Override
-    public void updateGameState() {
-        refreshBoard();
+    public void updateGameState(GameState gameState) {
+        refreshBoard(gameState.board(), gameState.legalMoves());
     }
 }

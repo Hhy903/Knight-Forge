@@ -1,47 +1,43 @@
 package com.knightforge.model.ChessPiecesTest;
 
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BishopTest {
+
     @Test
-    void testInitialSetup(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetup() {
+        Chessboard chessboard = new Chessboard();
 
-        List<ChessboardPosition> blackBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
-        List<ChessboardPosition> whiteBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
-        int expectedNumberOfBishopsPerColor = 2;
+        List<ChessboardPosition> blackBishopPositions = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
+        List<ChessboardPosition> whiteBishopPositions = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
 
-        assertEquals(expectedNumberOfBishopsPerColor, blackBishopPositions.size());
-        assertEquals(expectedNumberOfBishopsPerColor, whiteBishopPositions.size());
+        assertEquals(2, blackBishopPositions.size());
+        assertEquals(2, whiteBishopPositions.size());
     }
 
     @Test
-    void testInitialSetupValidMoves(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetupValidMoves() {
+        Chessboard chessboard = new Chessboard();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        List<ChessboardPosition> blackBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
-        List<ChessboardPosition> whiteBishopPositions = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
+        List<ChessboardPosition> whiteBishopPositions = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE);
+        List<ChessboardPosition> blackBishopPositions = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK);
 
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteBishopPositions.get(0)).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteBishopPositions.get(1)).size());
-        chessGame.switchTurns();
-        assertEquals(0, chessGame.getAllPossibleMoves(blackBishopPositions.get(0)).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(blackBishopPositions.get(1)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteBishopPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteBishopPositions.get(1)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackBishopPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackBishopPositions.get(1)).size());
     }
 
     @Test
-    void testBishopMovementInCorner(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMovementInCorner() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -50,18 +46,17 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
-        chessGame.switchTurns();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals(7, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(7, moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition).size());
     }
 
     @Test
-    void testBishopMovementInCornerWithOppositeColorBlocker(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMovementInCornerWithOppositeColorBlocker() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -70,17 +65,17 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
-        chessGame.switchTurns();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals(4, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(4, moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition).size());
     }
+
     @Test
-    void testBishopMovementInCornerWithBlocker(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMovementInCornerWithBlocker() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -89,18 +84,17 @@ public class BishopTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "bB -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
-        chessGame.switchTurns();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals(3, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(3, moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition).size());
     }
 
     @Test
-    void testBishopMovementComplex(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMovementComplex() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- bP",
                 "-- -- wQ -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -109,18 +103,17 @@ public class BishopTest {
                 "-- -- -- -- -- -- wP --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
-        chessGame.switchTurns();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
 
-        assertEquals(7, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(7, moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition).size());
     }
 
     @Test
-    void testBishopMoveCannotCauseCheck(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMoveCannotCauseCheck() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- bB",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -129,16 +122,17 @@ public class BishopTest {
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
 
-        assertEquals(4, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(4, moveHandler.getValidMoves(ChessColor.WHITE, bishopPosition).size());
     }
+
     @Test
-    void testBishopMoveCannotCauseCheckMustTake(){
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+    void testBishopMoveCannotCauseCheckMustTake() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -147,11 +141,10 @@ public class BishopTest {
                 "-- -- wK -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition bishopPosition = chessGame.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
+        ChessboardPosition bishopPosition = chessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.WHITE).get(0);
 
-        assertEquals(1, chessGame.getAllPossibleMoves(bishopPosition).size());
+        assertEquals(1, moveHandler.getValidMoves(ChessColor.WHITE, bishopPosition).size());
     }
-
 }

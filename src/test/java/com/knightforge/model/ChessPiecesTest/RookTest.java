@@ -1,7 +1,6 @@
 package com.knightforge.model.ChessPiecesTest;
 
 import com.knightforge.model.*;
-import com.knightforge.model.ChessPieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,38 +8,36 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RookTest {
+
     @Test
-    void testInitialSetup(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetup() {
+        Chessboard chessboard = new Chessboard();
 
-        List<ChessboardPosition> blackRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
-        List<ChessboardPosition> whiteRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
-        int expectedNumberOfRooksPerColor = 2;
+        List<ChessboardPosition> blackRookPositions = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
+        List<ChessboardPosition> whiteRookPositions = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
 
-        assertEquals(expectedNumberOfRooksPerColor, blackRookPositions.size());
-        assertEquals(expectedNumberOfRooksPerColor, whiteRookPositions.size());
+        assertEquals(2, blackRookPositions.size());
+        assertEquals(2, whiteRookPositions.size());
     }
 
     @Test
-    void testInitialSetupValidMoves(){
-        Chessboard defaultChessboard = new Chessboard();
-        ChessGame chessGame = new ChessGame(defaultChessboard);
+    void testInitialSetupValidMoves() {
+        Chessboard chessboard = new Chessboard();
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        List<ChessboardPosition> blackRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
-        List<ChessboardPosition> whiteRookPositions = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
+        List<ChessboardPosition> whiteRookPositions = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE);
+        List<ChessboardPosition> blackRookPositions = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.BLACK);
 
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteRookPositions.get(0)).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(whiteRookPositions.get(1)).size());
-        chessGame.switchTurns();
-        assertEquals(0, chessGame.getAllPossibleMoves(blackRookPositions.get(0)).size());
-        assertEquals(0, chessGame.getAllPossibleMoves(blackRookPositions.get(1)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteRookPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.WHITE, whiteRookPositions.get(1)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackRookPositions.get(0)).size());
+        assertEquals(0, moveHandler.getValidMoves(ChessColor.BLACK, blackRookPositions.get(1)).size());
     }
 
     @Test
     void testStandardMovementFromStart() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -49,17 +46,17 @@ public class RookTest {
                 "-- -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteRookPosition = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
-        assertEquals(11, chessGame.getAllPossibleMoves(whiteRookPosition).size());
+        assertEquals(11, moveHandler.getValidMoves(ChessColor.WHITE, whiteRookPosition).size());
     }
 
     @Test
     void testBlockedMovementFromStart() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "bP -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -68,17 +65,17 @@ public class RookTest {
                 "wR -- wP -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteRookPosition = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
-        assertEquals(8, chessGame.getAllPossibleMoves(whiteRookPosition).size());
+        assertEquals(8, moveHandler.getValidMoves(ChessColor.WHITE, whiteRookPosition).size());
     }
 
     @Test
     void testCannotCauseCheckWithMovement() {
-        Chessboard loadedChessboard = new Chessboard();
-        loadedChessboard.loadFromLines(List.of(
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
@@ -87,10 +84,10 @@ public class RookTest {
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --",
                 "-- -- -- -- -- -- -- --"));
-        ChessGame chessGame = new ChessGame(loadedChessboard);
+        MoveHandler moveHandler = new MoveHandler(chessboard);
 
-        ChessboardPosition whiteRookPosition = chessGame.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
+        ChessboardPosition whiteRookPosition = chessboard.getLocationsOfPiece(PieceType.ROOK, ChessColor.WHITE).get(0);
 
-        assertEquals(5, chessGame.getAllPossibleMoves(whiteRookPosition).size());
+        assertEquals(5, moveHandler.getValidMoves(ChessColor.WHITE, whiteRookPosition).size());
     }
 }

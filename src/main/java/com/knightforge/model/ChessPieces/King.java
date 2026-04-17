@@ -67,8 +67,10 @@ public class King extends ChessPiece {
     }
 
     private boolean rookHasNotMoved(List<MoveNew> moveHistory, int currentPieceRow, int desiredRookColumn, Chessboard chessboard) {
+        ChessPiece possiblyRook = chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn);
+        if (possiblyRook == null) { return false;}
         if (!Objects.equals(chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getType(), PieceType.ROOK) ||
-                chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getColor() != this.color) {
+                possiblyRook.getColor() != this.color) {
             return false;
         }
         for (MoveNew move : moveHistory) {
