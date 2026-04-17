@@ -1,10 +1,9 @@
-package com.knightforge.model;
+package com.knightforge.view.ChessboardComponents;
 
 import com.knightforge.controller.ClickController;
-import com.knightforge.view.ChessComponent;
+import com.knightforge.model.ChessboardPosition;
 
 import java.awt.*;
-import java.io.IOException;
 
 /**
  * Represents an empty square on the board.

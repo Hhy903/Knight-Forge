@@ -16,6 +16,7 @@ public class ChessGameController {
     public ChessGameController (ChessGame chessGameModel) {
         this.chessGameModel = chessGameModel;
         chessGameView = new ChessGameView(this, chessGameModel);
+        chessGameModel.addObserver(chessGameView);
         chessGameView.createView();
         chessGameView.createControls();
         chessGameModel.setup();

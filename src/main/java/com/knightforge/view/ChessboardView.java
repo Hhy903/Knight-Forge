@@ -4,40 +4,31 @@ import com.knightforge.controller.ChessGameController;
 import com.knightforge.controller.ClickController;
 import com.knightforge.model.*;
 import com.knightforge.model.ChessPieces.ChessPiece;
+import com.knightforge.view.ChessboardComponents.ChessComponent;
+import com.knightforge.view.ChessboardComponents.PieceComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChessboardView extends JComponent implements ChessGameObserver{
     private static final int LABEL_MARGIN = 24;
     private final int CHESS_SIZE;
+    private static final int DEFAULT_CHESSBOARD_SIZE = 8;
 
-    private final ChessComponent[][] chessComponents = new ChessComponent[BoardState.BOARD_SIZE][BoardState.BOARD_SIZE];
+    private final ChessComponent[][] chessComponents = new ChessComponent[DEFAULT_CHESSBOARD_SIZE][DEFAULT_CHESSBOARD_SIZE];
     private final PieceComponentFactory componentFactory = new PieceComponentFactory();
     private final ClickController clickController = new ClickController(this);
 
-    private ObservableChessGame chessGame;
-    private ChessGameController chessGameController;
-    private ChessboardPosition currentlySelectedSquare = null;
-    private List<ChessboardPosition> currentlyPossibleMoves = new ArrayList<>();
+    private final ChessGameController chessGameController;
 
-    public ChessboardView(int width, int height, ObservableChessGame chessGame, ChessGameController controller) {
-        this.chessGame = chessGame;
+    public ChessboardView(int chessboardWidth, int chessboardHeight, ChessGameController controller) {
         this.chessGameController = controller;
         setLayout(null); // Use absolute layout.
-        setSize(width + LABEL_MARGIN, height + LABEL_MARGIN);
-        CHESS_SIZE = width / 8;
-        System.out.printf("chessboard size = %d, chess size = %d\n", width, CHESS_SIZE);
-
-        chessGame.addObserver(this);
+        setSize(chessboardWidth + LABEL_MARGIN, chessboardHeight + LABEL_MARGIN);
+        CHESS_SIZE = chessboardWidth / 8;
+        System.out.printf("chessboard size = %d, chess size = %d\n", chessboardWidth, CHESS_SIZE);
     }
-
-    // TODO: make this class implement observer add
-//    private void update(){
-//
-//    }
 
     private void refreshBoard(ChessPiece[][] board, List<ChessboardPosition> currentLegalMoves) {
         removeAll();
@@ -74,53 +65,7 @@ public class ChessboardView extends JComponent implements ChessGameObserver{
     }
 
     public void handleSquareClick(ChessboardPosition selectedPosition) {
-//        if (currentlySelectedSquare == null) {
-//            // First click - select piece and show moves
-//            currentlySelectedSquare = selectedPosition;
-//            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
-//            showPossibleMoves();
-//        }
-//        else if (currentlySelectedSquare.equals(selectedPosition)) {
-//            // Click same square - deselect
-//            clearSelection();
-//        }
-//        else if (currentlyPossibleMoves.contains(selectedPosition)) {
-//            // Click valid move destination - execute move
-//            chessGameController.executeMove(currentlySelectedSquare, selectedPosition);
-//            clearSelection();
-//        }
-//        else {
-//            // Click different piece - reselect
-//            clearSelection();
-//            currentlySelectedSquare = selectedPosition;
-//            currentlyPossibleMoves = chessGameController.getPossibleMoves(selectedPosition);
-//            showPossibleMoves();
-//        }
         chessGameController.handleSquareClick(selectedPosition);
-    }
-
-    private void clearSelection() {
-        unshowPossibleMoves();
-        currentlySelectedSquare = null;
-        currentlyPossibleMoves = new ArrayList<>();
-    }
-
-    private void unshowPossibleMoves() {
-        for (int row = 0; row < chessComponents.length; row++) {
-            for (int col = 0; col < chessComponents[0].length; col++) {
-                chessComponents[row][col].setMoveHint(false);
-            }
-        }
-        revalidate();
-        repaint();
-    }
-
-    private void showPossibleMoves(){
-        for (ChessboardPosition position : currentlyPossibleMoves) {
-            chessComponents[position.getX()][position.getY()].setMoveHint(true);
-        }
-        revalidate();
-        repaint();
     }
 
     @Override

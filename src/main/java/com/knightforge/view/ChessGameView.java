@@ -21,6 +21,7 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
 
     ObservableChessGame chessGameModel;
     ChessGameController chessGameController;
+    ChessboardView chessboard;
 
     private JLabel statusLabel;
 
@@ -48,7 +49,7 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
     }
 
     private void addChessboard() {
-        ChessboardView chessboard = new ChessboardView(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameModel, chessGameController);
+        chessboard = new ChessboardView(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameController);
         chessboard.setLocation(DEFAULT_HEIGHT / 10, DEFAULT_HEIGHT / 10);
         add(chessboard);
     }
@@ -126,6 +127,7 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
     @Override
     public void updateGameState(GameState gameState) {
         updateStatus(gameState.currentTurn().getName());
+        chessboard.updateGameState(gameState);
     }
 
     public String getDesiredPromotion(String[] promotionOptions) {

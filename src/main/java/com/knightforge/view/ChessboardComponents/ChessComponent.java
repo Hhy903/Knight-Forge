@@ -1,15 +1,11 @@
-package com.knightforge.view;
+package com.knightforge.view.ChessboardComponents;
 
 import com.knightforge.controller.ClickController;
-import com.knightforge.model.BoardState;
-import com.knightforge.model.ChessColor;
 import com.knightforge.model.ChessboardPosition;
-import com.knightforge.model.EmptySlotComponent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 /**
  * Abstract base class for every square on the 8x8 board.

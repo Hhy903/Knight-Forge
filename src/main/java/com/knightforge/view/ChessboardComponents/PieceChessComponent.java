@@ -1,8 +1,9 @@
-package com.knightforge.view;
+package com.knightforge.view.ChessboardComponents;
 
 import com.knightforge.controller.ClickController;
 import com.knightforge.model.*;
 import com.knightforge.model.ChessPieces.ChessPiece;
+import com.knightforge.view.SkinManager;
 
 import java.awt.*;
 
