@@ -46,16 +46,18 @@ public class ChessGameController {
         chessGameModel.undoLastMove();
     }
 
+    // TODO
     public void loadGameFromFile(String filepath) {
         throw new Error("Implement me!");
     }
 
+    // TODO
     public boolean saveGameToFile(String filepath) {
         throw new Error("Implement me!");
     }
 
-    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition position){
-        possibleMoves = chessGameModel.getAllPossibleMoves(position);
-        return possibleMoves.stream().map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY())).toList();
-    }
+//    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition position){
+//        possibleMoves = chessGameModel.getAllPossibleMoves(position);
+//        return possibleMoves.stream().map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY())).toList();
+//    }
 }

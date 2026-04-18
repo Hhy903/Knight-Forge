@@ -29,7 +29,7 @@ public class ChessGame implements ObservableChessGame {
         this.whoseTurn = ChessColor.WHITE;
     }
 
-    // --- Interaction ---
+    // --- Public method for interacting with the board ---
 
     public void selectPosition(ChessboardPosition position) {
         switch (mode) {
@@ -48,6 +48,15 @@ public class ChessGame implements ObservableChessGame {
         clearSelection();
         notifyObservers();
     }
+
+    public void undoLastMove() {
+        moveHandler.undoLastMove();
+        switchTurns();
+        clearSelection();
+        notifyObservers();
+    }
+
+    // --- Private methods to handle board interaction based on current gameMode ---
 
     private void handleIdleClick(ChessboardPosition position) {
         List<MoveNew> moves = moveHandler.getValidMoves(whoseTurn, position);
@@ -96,6 +105,9 @@ public class ChessGame implements ObservableChessGame {
         mode = GameMode.IDLE;
     }
 
+
+    // --- Game flow/helper methods ---
+
     private void switchTurns() {
         whoseTurn = oppositeColor(whoseTurn);
     }
@@ -104,7 +116,16 @@ public class ChessGame implements ObservableChessGame {
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
     }
 
-    // --- State ---
+    // --- Observer specific method ---
+
+    public void setup() {
+        notifyObservers();
+    }
+
+    @Override
+    public void addObserver(ChessGameObserver observer) {
+        observers.add(observer);
+    }
 
     public GameState getState() {
         return new GameState(
@@ -114,45 +135,6 @@ public class ChessGame implements ObservableChessGame {
                 whoseTurn,
                 mode
         );
-    }
-
-    // --- AI / Strategy interface ---
-
-    public List<MoveNew> getAllPossibleMoves(ChessboardPosition position) {
-        return moveHandler.getValidMoves(whoseTurn, position);
-    }
-
-    public void undoLastMove() {
-        moveHandler.undoLastMove();
-        switchTurns();
-        clearSelection();
-        notifyObservers();
-    }
-
-    // --- Queries ---
-
-    public List<ChessboardPosition> getLocationsOfPiece(PieceType type, ChessColor color) {
-        return chessboard.getLocationsOfPiece(type, color);
-    }
-
-    public ChessPiece[][] getBoardState() {
-        return chessboard.getBoard();
-    }
-
-    @Override
-    public String getGameStatus() {
-        return whoseTurn.getName() + " to Move";
-    }
-
-    // --- Observers ---
-
-    public void setup() {
-        notifyObservers();
-    }
-
-    @Override
-    public void addObserver(ChessGameObserver observer) {
-        observers.add(observer);
     }
 
     private void notifyObservers() {
