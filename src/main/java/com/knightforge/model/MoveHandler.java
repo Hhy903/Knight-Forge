@@ -128,6 +128,22 @@ public class MoveHandler implements IMoveHandler{
         executeInternal(move, desiredPiece);
     }
 
+    public boolean isInCheck(ChessColor whoseTurn) {
+        return currentPlayerInCheck(whoseTurn);
+    }
+
+    public boolean hasAnyValidMove(ChessColor whoseTurn) {
+        for (int row = 0; row < Chessboard.BOARD_SIZE; row++) {
+            for (int col = 0; col < Chessboard.BOARD_SIZE; col++) {
+                ChessboardPosition position = new ChessboardPosition(row, col);
+                if (!getValidMoves(whoseTurn, position).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void executeInternal(Move move, PieceType promotionPiece){
         chessboard.movePiece(move.getFrom(), move.getTo());
         if (promotionPiece != null) {

@@ -122,6 +122,19 @@ public class ChessGame implements ObservableChessGame {
     }
 
     private void updateGameStatus() {
+        boolean inCheck = moveHandler.isInCheck(whoseTurn);
+        boolean hasLegalMove = moveHandler.hasAnyValidMove(whoseTurn);
+
+        if (!hasLegalMove) {
+            mode = GameMode.GAME_OVER;
+            if (inCheck) {
+                statusMessage = "Checkmate. " + oppositeColor(whoseTurn).getName() + " wins.";
+            } else {
+                statusMessage = "Draw by stalemate.";
+            }
+            return;
+        }
+
         if (isInsufficientMaterialDraw()) {
             mode = GameMode.GAME_OVER;
             statusMessage = "Draw by insufficient material.";
@@ -130,7 +143,7 @@ public class ChessGame implements ObservableChessGame {
         if (mode != GameMode.AWAITING_PROMOTION) {
             mode = GameMode.IDLE;
         }
-        statusMessage = whoseTurn.getName() + " to move.";
+        statusMessage = inCheck ? whoseTurn.getName() + " is in check." : whoseTurn.getName() + " to move.";
     }
 
     private void recordHalfmoveBeforeMove() {

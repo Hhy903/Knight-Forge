@@ -84,4 +84,63 @@ public class ChessGameTest {
         assertEquals(GameMode.GAME_OVER, chessGame.getState().mode());
         assertEquals("Draw by insufficient material.", chessGame.getState().statusMessage());
     }
+
+    @Test
+    void testCheckStatusIsShown() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
+                "bK -- -- -- bR -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- wK -- -- --"));
+
+        ChessGame chessGame = new ChessGame(chessboard);
+
+        assertEquals(GameMode.IDLE, chessGame.getState().mode());
+        assertEquals("White is in check.", chessGame.getState().statusMessage());
+    }
+
+    @Test
+    void testCheckmateIsDetected() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
+                "bR bN bB -- bK bB bN bR",
+                "bP bP bP bP -- bP bP bP",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- bP -- -- --",
+                "-- -- -- -- -- -- wP bQ",
+                "-- -- -- -- -- wP -- --",
+                "wP wP wP wP wP -- -- wP",
+                "wR wN wB wQ wK wB wN wR"));
+
+        ChessGame chessGame = new ChessGame();
+        chessGame.loadGameState(chessboard, ChessColor.WHITE, "KQkq", null, 1);
+
+        assertEquals(GameMode.GAME_OVER, chessGame.getState().mode());
+        assertEquals("Checkmate. Black wins.", chessGame.getState().statusMessage());
+    }
+
+    @Test
+    void testStalemateIsDetected() {
+        Chessboard chessboard = new Chessboard();
+        chessboard.loadFromLines(List.of(
+                "bK -- -- -- -- -- -- --",
+                "-- -- wQ -- -- -- -- --",
+                "-- -- wK -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --"));
+
+        ChessGame chessGame = new ChessGame();
+        chessGame.loadGameState(chessboard, ChessColor.BLACK, "-", null, 0);
+
+        assertEquals(GameMode.GAME_OVER, chessGame.getState().mode());
+        assertEquals("Draw by stalemate.", chessGame.getState().statusMessage());
+    }
 }
