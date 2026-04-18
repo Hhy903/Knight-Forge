@@ -43,13 +43,6 @@ public class Chessboard {
         return capturedPiece;
     }
 
-    public void reverseMove(ChessboardPosition currentLocation, ChessboardPosition reversedLocation, ChessPiece movedPiece, ChessPiece capturedPiece){
-        // Move piece back to previous location
-        board[reversedLocation.getX()][reversedLocation.getY()] = movedPiece;
-        // Restore captured piece
-        board[currentLocation.getX()][currentLocation.getY()] = capturedPiece;
-    }
-
     public ChessboardPosition getKingLocation(ChessColor color) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
