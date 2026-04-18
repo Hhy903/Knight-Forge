@@ -1,7 +1,7 @@
 package com.knightforge.model;
 import com.knightforge.model.ChessPieces.ChessPiece;
 
-public class MoveNew {
+public class Move {
     private ChessboardPosition from;
     private ChessboardPosition to;
     private ChessPiece activePiece;
@@ -9,7 +9,7 @@ public class MoveNew {
     private ChessboardPosition enPassantCaptureLocation;
     private ChessboardPosition rookPositionInvolvedInCastle;
 
-    public MoveNew(ChessboardPosition from, ChessboardPosition to, ChessPiece activePiece, ChessPiece involvedPiece){
+    public Move(ChessboardPosition from, ChessboardPosition to, ChessPiece activePiece, ChessPiece involvedPiece){
         this.from = from;
         this.to = to;
         this.activePiece = activePiece;
@@ -18,7 +18,7 @@ public class MoveNew {
         this.rookPositionInvolvedInCastle = null;
     }
 
-    public MoveNew(ChessboardPosition from, ChessboardPosition to, ChessPiece activePiece, ChessPiece involvedPiece, ChessboardPosition enPassantCapture, ChessboardPosition rookPositionInvolvedInCastle){
+    public Move(ChessboardPosition from, ChessboardPosition to, ChessPiece activePiece, ChessPiece involvedPiece, ChessboardPosition enPassantCapture, ChessboardPosition rookPositionInvolvedInCastle){
         this.from = from;
         this.to = to;
         this.activePiece = activePiece;

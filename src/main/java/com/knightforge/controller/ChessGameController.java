@@ -5,13 +5,12 @@ import com.knightforge.view.ChessGameView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ChessGameController {
     ChessGame chessGameModel;
     ChessGameView chessGameView;
 
-    List<MoveNew> possibleMoves = new ArrayList<>();
+    List<Move> possibleMoves = new ArrayList<>();
 
     public ChessGameController (ChessGame chessGameModel) {
         this.chessGameModel = chessGameModel;

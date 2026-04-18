@@ -1,7 +1,6 @@
 package com.knightforge.model;
 
 import com.knightforge.model.ChessPieces.ChessPiece;
-import com.knightforge.model.ChessPieces.Pawn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,19 +8,20 @@ import java.util.Objects;
 
 public class MoveHandler implements IMoveHandler{
     Chessboard chessboard;
-    private final List<MoveNew> moveHistory = new ArrayList<>();
+    private final List<Move> moveHistory = new ArrayList<>();
 
     public MoveHandler(Chessboard chessboard) {
         this.chessboard = chessboard;
     }
 
     @Override
-    public List<MoveNew> getValidMoves(ChessColor whoseTurn, ChessboardPosition position) {
-        List<MoveNew> possiblyLegalMoves = getPotentiallyLegalMoves(position);
+    public List<Move> getValidMoves(ChessColor whoseTurn, ChessboardPosition position) {
+        List<Move> possiblyLegalMoves = getPotentiallyLegalMoves(position);
         return getLegalMoves(position, possiblyLegalMoves, whoseTurn);
     }
 
-    private List<MoveNew> getPotentiallyLegalMoves(ChessboardPosition position) {
+    // Retrieves piece at location, get possible unvalidated moves
+    private List<Move> getPotentiallyLegalMoves(ChessboardPosition position) {
         ChessPiece pieceAtPosition = chessboard.getPieceAtPosition(position);
         if (pieceAtPosition == null) {
             return new ArrayList<>();
@@ -29,7 +29,8 @@ public class MoveHandler implements IMoveHandler{
         return new ArrayList<>(pieceAtPosition.getPossibleMoves(position, chessboard, moveHistory));
     }
 
-    private List<MoveNew> getLegalMoves(ChessboardPosition currentPosition, List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
+    // Filter out invalid moves (invalid castling moves/would leave king in check moves)
+    private List<Move> getLegalMoves(ChessboardPosition currentPosition, List<Move> possiblyLegalMoves, ChessColor whoseTurn){
         if (chessboard.getPieceAtPosition(currentPosition) == null || chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             return new ArrayList<>();
         }
@@ -41,7 +42,7 @@ public class MoveHandler implements IMoveHandler{
                 .toList();
     }
 
-    private List<MoveNew> filterOutInvalidCastlingMoves(List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
+    private List<Move> filterOutInvalidCastlingMoves(List<Move> possiblyLegalMoves, ChessColor whoseTurn){
         // Cannot castle while in check
         if (currentPlayerInCheck(whoseTurn)) {
             possiblyLegalMoves = possiblyLegalMoves.stream()
@@ -58,7 +59,7 @@ public class MoveHandler implements IMoveHandler{
         return possiblyLegalMoves;
     }
 
-    private boolean isNotCastleThroughAttackedSquareMove(MoveNew move, List<ChessboardPosition> opponentsAttackableSquares) {
+    private boolean isNotCastleThroughAttackedSquareMove(Move move, List<ChessboardPosition> opponentsAttackableSquares) {
         if (!move.isCastleMove()){
             return true;
         }
@@ -68,7 +69,7 @@ public class MoveHandler implements IMoveHandler{
     }
 
     // TODO:
-    private boolean wouldLeaveKingInCheck(MoveNew move, ChessColor whoseTurn) {
+    private boolean wouldLeaveKingInCheck(Move move, ChessColor whoseTurn) {
         // Make the move, store if current player is in check.
         if (isPawnPromotion(move)) {
             executeInternal(move, PieceType.QUEEN);
@@ -90,19 +91,15 @@ public class MoveHandler implements IMoveHandler{
         return opponentsAttackableSquares.contains(kingPosition);
     }
 
-    // TODO: Currently using the getPotentiallyLegalMoves to determine opponents attackable squares fails for pawn movement
+
     protected List<ChessboardPosition> getAttackableSquares(ChessColor color) {
         List<ChessboardPosition> attackableSquares = new ArrayList<>();
         for (PieceType piece : PieceType.values()){
             List<ChessboardPosition> locationsForPiece = chessboard.getLocationsOfPiece(piece, color);
             if (!locationsForPiece.isEmpty()) {
                 for (ChessboardPosition position : locationsForPiece) {
-                    List<MoveNew> possiblyLegalMoves = getPotentiallyLegalMoves(position);
-                    List<MoveNew> tmp = getPotentiallyLegalMoves(position).stream()
+                    List<ChessboardPosition> possibleResultingPositions = getPotentiallyLegalMoves(position).stream()
                             .filter(this::moveIsDiagonalIfPawnMove)
-                            .toList();
-
-                    List<ChessboardPosition> possibleResultingPositions = tmp.stream()
                             .map(move -> new ChessboardPosition(move.getTo().getX(), move.getTo().getY()))
                             .toList();
                     attackableSquares.addAll(possibleResultingPositions);
@@ -112,25 +109,25 @@ public class MoveHandler implements IMoveHandler{
         return attackableSquares;
     }
 
-    private boolean moveIsDiagonalIfPawnMove(MoveNew move) {
+    private boolean moveIsDiagonalIfPawnMove(Move move) {
         if (!Objects.equals(chessboard.getPieceAtPosition(move.getFrom()).getType(), PieceType.PAWN)){
             return true;
         }
         return move.getTo().getY() != move.getFrom().getY();
     }
 
-    public void executeMove(MoveNew move) throws PromotionRequiredException{
+    public void executeMove(Move move) throws PromotionRequiredException{
         if (isPawnPromotion(move)) {
             throw new PromotionRequiredException();
         }
         executeInternal(move, null);
     }
 
-    public void executePromotionMove(MoveNew move, PieceType desiredPiece){
+    public void executePromotionMove(Move move, PieceType desiredPiece){
         executeInternal(move, desiredPiece);
     }
 
-    private void executeInternal(MoveNew move, PieceType promotionPiece){
+    private void executeInternal(Move move, PieceType promotionPiece){
         chessboard.movePiece(move.getFrom(), move.getTo());
         if (promotionPiece != null) {
             chessboard.createAndPlacePiece(promotionPiece, move.getActivePiece().getColor(), move.getTo());
@@ -148,7 +145,7 @@ public class MoveHandler implements IMoveHandler{
         if (moveHistory.isEmpty()) {
             return false;
         }
-        MoveNew lastMove = moveHistory.get(moveHistory.size()-1);
+        Move lastMove = moveHistory.get(moveHistory.size()-1);
         // En Passant
         if (lastMove.isEnPassant()){
             chessboard.movePiece(lastMove.getTo(), lastMove.getFrom());
@@ -175,7 +172,7 @@ public class MoveHandler implements IMoveHandler{
         return color == ChessColor.BLACK ? ChessColor.WHITE : ChessColor.BLACK;
     }
 
-    private boolean isPawnPromotion(MoveNew move) {
+    private boolean isPawnPromotion(Move move) {
         return move.getActivePiece().getType().equals(PieceType.PAWN) && (move.getTo().getX() == 0 || move.getTo().getX() == 7);
     }
 }

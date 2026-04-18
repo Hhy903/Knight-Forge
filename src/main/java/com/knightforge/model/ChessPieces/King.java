@@ -25,8 +25,8 @@ public class King extends ChessPiece {
     }
 
     @Override
-    public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<MoveNew> moveHistory) {
-        List<MoveNew> specialMoves = new ArrayList<>();
+    public List<Move> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<Move> moveHistory) {
+        List<Move> specialMoves = new ArrayList<>();
 
         if (thisPieceHasMoved(moveHistory) || !thisPieceAtStartingLocation(board)) { return specialMoves; }
 
@@ -35,7 +35,7 @@ public class King extends ChessPiece {
         if (rookHasNotMoved(moveHistory, currentPosition.getX(), QUEENSIDE_ROOK_COLUMN, board) &&
                 pathIsClear(currentPosition, possibleTargetPosition, board) &&
                 pathIsClear(currentPosition, involvedRookPosition, board)){
-            specialMoves.add(new MoveNew(currentPosition,
+            specialMoves.add(new Move(currentPosition,
                     possibleTargetPosition,
                     board.getPieceAtPosition(currentPosition),
                     board.getPieceAtPosition(involvedRookPosition),
@@ -48,7 +48,7 @@ public class King extends ChessPiece {
         if (rookHasNotMoved(moveHistory, currentPosition.getX(), KINGSIDE_ROOK_COLUMN, board) &&
                 pathIsClear(currentPosition, possibleTargetPosition, board)&&
                 pathIsClear(currentPosition, involvedRookPosition, board)){
-            specialMoves.add(new MoveNew(currentPosition,
+            specialMoves.add(new Move(currentPosition,
                     new ChessboardPosition(currentPosition.getX(), currentPosition.getY()+2),
                     board.getPieceAtPosition(currentPosition),
                     board.getPieceAtPosition(involvedRookPosition),
@@ -66,14 +66,14 @@ public class King extends ChessPiece {
         return true;
     }
 
-    private boolean rookHasNotMoved(List<MoveNew> moveHistory, int currentPieceRow, int desiredRookColumn, Chessboard chessboard) {
+    private boolean rookHasNotMoved(List<Move> moveHistory, int currentPieceRow, int desiredRookColumn, Chessboard chessboard) {
         ChessPiece possiblyRook = chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn);
         if (possiblyRook == null) { return false;}
         if (!Objects.equals(chessboard.getPieceAtPosition(currentPieceRow, desiredRookColumn).getType(), PieceType.ROOK) ||
                 possiblyRook.getColor() != this.color) {
             return false;
         }
-        for (MoveNew move : moveHistory) {
+        for (Move move : moveHistory) {
             ChessPiece activePiece = move.getActivePiece();
             if (activePiece.getColor() == this.color &&
                     Objects.equals(activePiece.getType(), PieceType.ROOK) &&
@@ -85,8 +85,8 @@ public class King extends ChessPiece {
         return true;
     }
 
-    private boolean thisPieceHasMoved(List<MoveNew> moveHistory) {
-        for (MoveNew move : moveHistory) {
+    private boolean thisPieceHasMoved(List<Move> moveHistory) {
+        for (Move move : moveHistory) {
             ChessPiece activePiece = move.getActivePiece();
             if (activePiece.getColor() == this.color && Objects.equals(activePiece.getType(), this.type)){
                 return true;

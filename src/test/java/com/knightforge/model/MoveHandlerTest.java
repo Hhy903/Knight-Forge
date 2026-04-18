@@ -24,9 +24,9 @@ public class MoveHandlerTest {
 
         ChessboardPosition bishopPosition = loadedChessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
         ChessColor whoseTurn = ChessColor.BLACK;
-        List<MoveNew> possibleBishopMoves =moveHandler.getValidMoves(whoseTurn,bishopPosition);
+        List<Move> possibleBishopMoves =moveHandler.getValidMoves(whoseTurn,bishopPosition);
 
-        MoveNew moveToOppositeCorner = possibleBishopMoves.stream()
+        Move moveToOppositeCorner = possibleBishopMoves.stream()
                 .filter(move -> move.getTo().getX() == 0 && move.getTo().getY() == 7)
                 .findFirst()
                 .orElse(null);
@@ -55,9 +55,9 @@ public class MoveHandlerTest {
 
         ChessboardPosition bishopPosition = loadedChessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
         ChessColor whoseTurn = ChessColor.BLACK;
-        List<MoveNew> possibleBishopMoves = moveHandler.getValidMoves(whoseTurn, bishopPosition);
+        List<Move> possibleBishopMoves = moveHandler.getValidMoves(whoseTurn, bishopPosition);
 
-        MoveNew capturePawn = possibleBishopMoves.stream()
+        Move capturePawn = possibleBishopMoves.stream()
                 .filter(move -> move.getTo().getX() == 3 && move.getTo().getY() == 4)
                 .findFirst()
                 .orElse(null);
@@ -87,9 +87,9 @@ public class MoveHandlerTest {
 
         // First move: Black pawn moves two squares forward
         ChessboardPosition blackPawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK).get(0);
-        List<MoveNew> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
+        List<Move> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
 
-        MoveNew blackPawnTwoSquares = blackPawnMoves.stream()
+        Move blackPawnTwoSquares = blackPawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 3 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);
@@ -99,9 +99,9 @@ public class MoveHandlerTest {
 
         // Second move: White pawn captures black pawn en passant
         ChessboardPosition whitePawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
-        List<MoveNew> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
+        List<Move> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
 
-        MoveNew enPassantCapture = whitePawnMoves.stream()
+        Move enPassantCapture = whitePawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 2 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);
@@ -133,9 +133,9 @@ public class MoveHandlerTest {
 
         // First move: Black pawn moves two squares, giving check to the white king
         ChessboardPosition blackPawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK).get(0);
-        List<MoveNew> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
+        List<Move> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
 
-        MoveNew blackPawnTwoSquares = blackPawnMoves.stream()
+        Move blackPawnTwoSquares = blackPawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 3 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);
@@ -149,11 +149,11 @@ public class MoveHandlerTest {
 
         // Second move: White pawn captures en passant to escape check
         ChessboardPosition whitePawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
-        List<MoveNew> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
+        List<Move> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
 
         assertEquals(1, whitePawnMoves.size());
 
-        MoveNew enPassantCapture = whitePawnMoves.stream()
+        Move enPassantCapture = whitePawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 2 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);
@@ -185,9 +185,9 @@ public class MoveHandlerTest {
         MoveHandler moveHandler = new MoveHandler(loadedChessboard);
 
         ChessboardPosition bishopPosition = loadedChessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
-        List<MoveNew> possibleBishopMoves = moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition);
+        List<Move> possibleBishopMoves = moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition);
 
-        MoveNew moveToOppositeCorner = possibleBishopMoves.stream()
+        Move moveToOppositeCorner = possibleBishopMoves.stream()
                 .filter(move -> move.getTo().getX() == 0 && move.getTo().getY() == 7)
                 .findFirst()
                 .orElse(null);
@@ -223,9 +223,9 @@ public class MoveHandlerTest {
         MoveHandler moveHandler = new MoveHandler(loadedChessboard);
 
         ChessboardPosition bishopPosition = loadedChessboard.getLocationsOfPiece(PieceType.BISHOP, ChessColor.BLACK).get(0);
-        List<MoveNew> possibleBishopMoves = moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition);
+        List<Move> possibleBishopMoves = moveHandler.getValidMoves(ChessColor.BLACK, bishopPosition);
 
-        MoveNew capturePawn = possibleBishopMoves.stream()
+        Move capturePawn = possibleBishopMoves.stream()
                 .filter(move -> move.getTo().getX() == 3 && move.getTo().getY() == 4)
                 .findFirst()
                 .orElse(null);
@@ -264,9 +264,9 @@ public class MoveHandlerTest {
         MoveHandler moveHandler = new MoveHandler(loadedChessboard);
 
         ChessboardPosition kingPosition = loadedChessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+        List<Move> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        MoveNew castleKingside = kingMoves.stream()
+        Move castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
@@ -307,9 +307,9 @@ public class MoveHandlerTest {
 
         // First move: Black pawn moves two squares
         ChessboardPosition blackPawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.BLACK).get(0);
-        List<MoveNew> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
+        List<Move> blackPawnMoves = moveHandler.getValidMoves(ChessColor.BLACK, blackPawnPosition);
 
-        MoveNew blackPawnTwoSquares = blackPawnMoves.stream()
+        Move blackPawnTwoSquares = blackPawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 3 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);
@@ -319,9 +319,9 @@ public class MoveHandlerTest {
 
         // Second move: White pawn captures en passant
         ChessboardPosition whitePawnPosition = loadedChessboard.getLocationsOfPiece(PieceType.PAWN, ChessColor.WHITE).get(0);
-        List<MoveNew> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
+        List<Move> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, whitePawnPosition);
 
-        MoveNew enPassantCapture = whitePawnMoves.stream()
+        Move enPassantCapture = whitePawnMoves.stream()
                 .filter(move -> move.getTo().getX() == 2 && move.getTo().getY() == 3)
                 .findFirst()
                 .orElse(null);

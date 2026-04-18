@@ -17,14 +17,15 @@ public abstract class ChessPiece {
     public ChessColor getColor() { return this.color; }
     public PieceType getType() { return this.type; }
 
-    public List<MoveNew> getPossibleMoves(ChessboardPosition currentPosition, Chessboard chessboard, List<MoveNew> moveHistory) {
-        List<MoveNew> legalMoves = new ArrayList<>();
+    // Gets all possible moves (not yet validated to ensure king is not in check as a result)
+    public List<Move> getPossibleMoves(ChessboardPosition currentPosition, Chessboard chessboard, List<Move> moveHistory) {
+        List<Move> legalMoves = new ArrayList<>();
 
         for (int row = 0; row < chessboard.getHeight(); row++) {
             for (int col = 0; col < chessboard.getLength(); col++) {
                 ChessboardPosition target = new ChessboardPosition(row, col);
                 if (isLegalMove(currentPosition, target, chessboard)) {
-                    legalMoves.add(new MoveNew(currentPosition, target, chessboard.getPieceAtPosition(currentPosition), chessboard.getPieceAtPosition(target)));
+                    legalMoves.add(new Move(currentPosition, target, chessboard.getPieceAtPosition(currentPosition), chessboard.getPieceAtPosition(target)));
                 }
             }
         }
@@ -64,5 +65,5 @@ public abstract class ChessPiece {
         return targetPiece == null || targetPiece.getColor() != this.color;
     }
 
-    public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition position, Chessboard board, List<MoveNew> moveHistory){ return new ArrayList<>(); }
+    public List<Move> getPossibleSpecialMoves(ChessboardPosition position, Chessboard board, List<Move> moveHistory){ return new ArrayList<>(); }
 }

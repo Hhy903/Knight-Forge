@@ -85,9 +85,9 @@ public class KingTest {
         MoveHandler moveHandler = new MoveHandler(chessboard);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+        List<Move> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        MoveNew castleKingside = kingMoves.stream()
+        Move castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
@@ -118,15 +118,15 @@ public class KingTest {
         MoveHandler moveHandler = new MoveHandler(chessboard);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+        List<Move> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        MoveNew castleKingside = kingMoves.stream()
+        Move castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
         assertNull(castleKingside);
 
-        MoveNew castleQueenside = kingMoves.stream()
+        Move castleQueenside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 2)
                 .findFirst()
                 .orElse(null);
@@ -148,9 +148,9 @@ public class KingTest {
         MoveHandler moveHandler = new MoveHandler(chessboard);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        List<MoveNew> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
+        List<Move> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition);
 
-        MoveNew castleKingside = kingMoves.stream()
+        Move castleKingside = kingMoves.stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
@@ -176,7 +176,7 @@ public class KingTest {
                 .findFirst()
                 .orElseThrow();
 
-        MoveNew moveRookAway = moveHandler.getValidMoves(ChessColor.WHITE, rookPosition).stream()
+        Move moveRookAway = moveHandler.getValidMoves(ChessColor.WHITE, rookPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElseThrow();
@@ -187,14 +187,14 @@ public class KingTest {
                 .findFirst()
                 .orElseThrow();
 
-        MoveNew moveRookBack = moveHandler.getValidMoves(ChessColor.WHITE, movedRookPosition).stream()
+        Move moveRookBack = moveHandler.getValidMoves(ChessColor.WHITE, movedRookPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 7)
                 .findFirst()
                 .orElseThrow();
         moveHandler.executeMove(moveRookBack);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        MoveNew castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
+        Move castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
@@ -217,7 +217,7 @@ public class KingTest {
         MoveHandler moveHandler = new MoveHandler(chessboard);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        MoveNew castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
+        Move castleKingside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 6)
                 .findFirst()
                 .orElse(null);
@@ -240,7 +240,7 @@ public class KingTest {
         MoveHandler moveHandler = new MoveHandler(chessboard);
 
         ChessboardPosition kingPosition = chessboard.getLocationsOfPiece(PieceType.KING, ChessColor.WHITE).get(0);
-        MoveNew castleQueenside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
+        Move castleQueenside = moveHandler.getValidMoves(ChessColor.WHITE, kingPosition).stream()
                 .filter(move -> move.getTo().getX() == 7 && move.getTo().getY() == 2)
                 .findFirst()
                 .orElse(null);

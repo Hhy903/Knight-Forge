@@ -2,7 +2,7 @@ package com.knightforge.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.knightforge.model.ChessPieces.ChessPiece;
+
 import com.knightforge.view.ChessGameObserver;
 
 public class ChessGame implements ObservableChessGame {
@@ -13,9 +13,9 @@ public class ChessGame implements ObservableChessGame {
 
     // Interaction state
     private ChessboardPosition selectedSquare = null;
-    private List<MoveNew> currentLegalMoves = new ArrayList<>();
+    private List<Move> currentLegalMoves = new ArrayList<>();
     private GameMode mode = GameMode.IDLE;
-    private MoveNew pendingPromotionMove = null;
+    private Move pendingPromotionMove = null;
 //
 //    public ChessGame(Chessboard chessboard) {
 //        this.chessboard = chessboard;
@@ -59,7 +59,7 @@ public class ChessGame implements ObservableChessGame {
     // --- Private methods to handle board interaction based on current gameMode ---
 
     private void handleIdleClick(ChessboardPosition position) {
-        List<MoveNew> moves = moveHandler.getValidMoves(whoseTurn, position);
+        List<Move> moves = moveHandler.getValidMoves(whoseTurn, position);
         if (!moves.isEmpty()) {
             selectedSquare = position;
             currentLegalMoves = moves;
@@ -73,7 +73,7 @@ public class ChessGame implements ObservableChessGame {
             return;
         }
 
-        MoveNew move = currentLegalMoves.stream()
+        Move move = currentLegalMoves.stream()
                 .filter(m -> m.getTo().equals(position))
                 .findFirst()
                 .orElse(null);
@@ -89,7 +89,7 @@ public class ChessGame implements ObservableChessGame {
             }
         } else {
             // Only reselect if the clicked position belongs to a friendly piece with legal moves
-            List<MoveNew> moves = moveHandler.getValidMoves(whoseTurn, position);
+            List<Move> moves = moveHandler.getValidMoves(whoseTurn, position);
             if (!moves.isEmpty()) {
                 selectedSquare = position;
                 currentLegalMoves = moves;

@@ -32,31 +32,31 @@ public class Pawn extends ChessPiece {
 
     // Adds special-case diagonal movement (attacking and En Passant)
     @Override
-    public List<MoveNew> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<MoveNew> moveHistory) {
-        List<MoveNew> possibleMoves = new ArrayList<>();
+    public List<Move> getPossibleSpecialMoves(ChessboardPosition currentPosition, Chessboard board, List<Move> moveHistory) {
+        List<Move> possibleMoves = new ArrayList<>();
         // Standard Attacking
         //Digonal 1
         if (currentPosition.getY() + 1 < board.getLength() &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()+1).getColor() != color) {
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, currentPosition.getY()+1);
-            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
+            possibleMoves.add(new Move(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         //Diagonal 2
         if (currentPosition.getY() - 1 >= 0  &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1) != null &&
                 board.getPieceAtPosition(currentPosition.getX()+direction, currentPosition.getY()-1).getColor() != color) {
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, currentPosition.getY()-1);
-            possibleMoves.add(new MoveNew(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
+            possibleMoves.add(new Move(currentPosition, targetPosition, board.getPieceAtPosition(currentPosition), board.getPieceAtPosition(targetPosition)));
         }
         if (moveHistory.isEmpty()) { return possibleMoves; }
-        MoveNew opponentsLastMove = moveHistory.get(moveHistory.size()-1);
+        Move opponentsLastMove = moveHistory.get(moveHistory.size()-1);
         // En Passant
         if (opponentsLastMove.wasTwoSquarePawnMove() &&
                 currentPosition.getX() == opponentsLastMove.getTo().getX() &&
                 Math.abs(currentPosition.getY() - opponentsLastMove.getTo().getY()) == 1){
             ChessboardPosition targetPosition = new ChessboardPosition(currentPosition.getX()+direction, opponentsLastMove.getTo().getY());
-            possibleMoves.add(new MoveNew(currentPosition,
+            possibleMoves.add(new Move(currentPosition,
                     targetPosition,
                     board.getPieceAtPosition(currentPosition),
                     board.getPieceAtPosition(opponentsLastMove.getTo().getX(), opponentsLastMove.getTo().getY()),
