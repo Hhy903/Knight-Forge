@@ -8,15 +8,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Timer;
 
 public class ChessGameController {
     ChessGame chessGameModel;
     ChessGameView chessGameView;
+    private final RandomMoveAI randomMoveAI = new RandomMoveAI();
+    private final boolean aiEnabled;
+    private static final ChessColor AI_COLOR = ChessColor.BLACK;
 
     List<Move> possibleMoves = new ArrayList<>();
 
-    public ChessGameController (ChessGame chessGameModel) {
+    public ChessGameController (ChessGame chessGameModel, boolean aiEnabled) {
         this.chessGameModel = chessGameModel;
+        this.aiEnabled = aiEnabled;
 
         chessGameView = new ChessGameView(this, chessGameModel);
 
@@ -24,7 +29,15 @@ public class ChessGameController {
         chessGameModel.setup();
     }
 
+    public ChessGameController(ChessGame chessGameModel) {
+        this(chessGameModel, false);
+    }
+
     public void handleSquareClick(ChessboardPosition position) {
+        if (aiEnabled && chessGameModel.getCurrentTurn() == AI_COLOR) {
+            return;
+        }
+
         chessGameModel.selectPosition(position);
 
         if (chessGameModel.getState().mode() == GameMode.AWAITING_PROMOTION) {
@@ -38,6 +51,8 @@ public class ChessGameController {
             };
             chessGameModel.handlePromotionSelection(promotionPiece);
         }
+
+        scheduleAiMoveIfNeeded();
     }
 
     public void showView(){
@@ -46,6 +61,9 @@ public class ChessGameController {
 
     public void undoLastMove() {
         chessGameModel.undoLastMove();
+        if (aiEnabled && chessGameModel.getCurrentTurn() == AI_COLOR) {
+            chessGameModel.undoLastMove();
+        }
     }
 
     // TODO
@@ -63,6 +81,7 @@ public class ChessGameController {
                     saveData.enPassantTarget(),
                     saveData.halfmoveClock()
             );
+            scheduleAiMoveIfNeeded();
         } catch (IOException | IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to load game from " + filepath, e);
         }
@@ -136,6 +155,29 @@ public class ChessGameController {
             int halfmoveClock,
             List<String> boardLines
     ) {}
+
+    private void scheduleAiMoveIfNeeded() {
+        if (!aiEnabled || chessGameModel.getCurrentTurn() != AI_COLOR || chessGameModel.getState().mode() == GameMode.GAME_OVER) {
+            return;
+        }
+
+        Timer timer = new Timer(250, e -> performAiMove());
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    private void performAiMove() {
+        if (chessGameModel.getCurrentTurn() != AI_COLOR || chessGameModel.getState().mode() == GameMode.GAME_OVER) {
+            return;
+        }
+
+        Move chosenMove = randomMoveAI.chooseMove(chessGameModel.getAllValidMovesForCurrentTurn());
+        if (chosenMove == null) {
+            return;
+        }
+
+        chessGameModel.performMove(chosenMove, PieceType.QUEEN);
+    }
 
 //    public List<ChessboardPosition> getPossibleMoves(ChessboardPosition position){
 //        possibleMoves = chessGameModel.getAllPossibleMoves(position);

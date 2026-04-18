@@ -46,13 +46,8 @@ public class ChessGame implements ObservableChessGame {
 
     public void handlePromotionSelection(PieceType type) {
         if (mode != GameMode.AWAITING_PROMOTION || pendingPromotionMove == null) return;
-        recordHalfmoveBeforeMove();
-        moveHandler.executePromotionMove(pendingPromotionMove, type);
-        updateHalfmoveClockAfterMove(pendingPromotionMove);
+        applyPromotionMove(pendingPromotionMove, type);
         pendingPromotionMove = null;
-        switchTurns();
-        clearSelection();
-        updateGameStatus();
         notifyObservers();
     }
 
@@ -65,6 +60,41 @@ public class ChessGame implements ObservableChessGame {
         clearSelection();
         updateGameStatus();
         notifyObservers();
+    }
+
+    public boolean performMove(Move move, PieceType promotionPiece) {
+        if (mode == GameMode.GAME_OVER || move == null) {
+            return false;
+        }
+        try {
+            applyMove(move);
+            notifyObservers();
+            return true;
+        } catch (PromotionRequiredException e) {
+            if (promotionPiece == null) {
+                pendingPromotionMove = move;
+                mode = GameMode.AWAITING_PROMOTION;
+                statusMessage = "Choose promotion piece.";
+            } else {
+                applyPromotionMove(move, promotionPiece);
+            }
+            notifyObservers();
+            return true;
+        }
+    }
+
+    public List<Move> getAllValidMovesForCurrentTurn() {
+        List<Move> validMoves = new ArrayList<>();
+        for (int row = 0; row < Chessboard.BOARD_SIZE; row++) {
+            for (int col = 0; col < Chessboard.BOARD_SIZE; col++) {
+                validMoves.addAll(moveHandler.getValidMoves(whoseTurn, new ChessboardPosition(row, col)));
+            }
+        }
+        return validMoves;
+    }
+
+    public ChessColor getCurrentTurn() {
+        return whoseTurn;
     }
 
     // --- Private methods to handle board interaction based on current gameMode ---
@@ -90,19 +120,7 @@ public class ChessGame implements ObservableChessGame {
                 .orElse(null);
 
         if (move != null) {
-            try {
-                recordHalfmoveBeforeMove();
-                moveHandler.executeMove(move);
-                updateHalfmoveClockAfterMove(move);
-                switchTurns();
-                clearSelection();
-                updateGameStatus();
-            } catch (PromotionRequiredException e) {
-                halfmoveClockHistory.remove(halfmoveClockHistory.size() - 1);
-                pendingPromotionMove = move;
-                mode = GameMode.AWAITING_PROMOTION;
-                statusMessage = "Choose promotion piece.";
-            }
+            performMove(move, null);
         } else {
             // Only reselect if the clicked position belongs to a friendly piece with legal moves
             List<Move> moves = moveHandler.getValidMoves(whoseTurn, position);
@@ -119,6 +137,30 @@ public class ChessGame implements ObservableChessGame {
         selectedSquare = null;
         currentLegalMoves = new ArrayList<>();
         mode = GameMode.IDLE;
+    }
+
+    private void applyMove(Move move) throws PromotionRequiredException {
+        recordHalfmoveBeforeMove();
+        try {
+            moveHandler.executeMove(move);
+        } catch (PromotionRequiredException e) {
+            halfmoveClockHistory.remove(halfmoveClockHistory.size() - 1);
+            throw e;
+        }
+        updateHalfmoveClockAfterMove(move);
+        switchTurns();
+        clearSelection();
+        updateGameStatus();
+    }
+
+    private void applyPromotionMove(Move move, PieceType type) {
+        recordHalfmoveBeforeMove();
+        moveHandler.executePromotionMove(move, type);
+        updateHalfmoveClockAfterMove(move);
+        pendingPromotionMove = null;
+        switchTurns();
+        clearSelection();
+        updateGameStatus();
     }
 
     private void updateGameStatus() {
