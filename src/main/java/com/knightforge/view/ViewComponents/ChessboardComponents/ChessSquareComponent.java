@@ -1,6 +1,5 @@
 package com.knightforge.view.ViewComponents.ChessboardComponents;
 
-import com.knightforge.controller.ClickController;
 import com.knightforge.model.ChessPieces.ChessPiece;
 import com.knightforge.model.ChessboardPosition;
 import com.knightforge.model.GameState;

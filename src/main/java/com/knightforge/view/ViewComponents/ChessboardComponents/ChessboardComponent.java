@@ -1,7 +1,6 @@
 package com.knightforge.view.ViewComponents.ChessboardComponents;
 
 import com.knightforge.controller.ChessGameController;
-import com.knightforge.controller.ClickController;
 import com.knightforge.model.*;
 import com.knightforge.view.ViewComponents.UpdatableUIComponent;
 
