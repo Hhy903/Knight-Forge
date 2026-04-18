@@ -13,12 +13,12 @@ public class StatusLabelComponent extends JLabel implements UpdatableUIComponent
         setFont(new Font("Rockwell", Font.BOLD, 18));
     }
 
-    private void updateStatus(String whoseTurn) {
-        setText("<html>" + (whoseTurn == null ? "White to move." : whoseTurn + " to move.") + "</html>");
+    private void updateStatus(String statusMessage) {
+        setText("<html>" + (statusMessage == null ? "White to move." : statusMessage) + "</html>");
     }
 
     @Override
     public void updateGameState(GameState state) {
-        updateStatus(state.currentTurn().getName());
+        updateStatus(state.statusMessage());
     }
 }

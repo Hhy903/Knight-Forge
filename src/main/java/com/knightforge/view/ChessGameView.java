@@ -88,7 +88,11 @@ private <T extends Component & UpdatableUIComponent> void registerComponent(T co
             if (result != JFileChooser.APPROVE_OPTION) {
                 return;
             }
-            chessGameController.loadGameFromFile(chooser.getSelectedFile().getPath());
+            try {
+                chessGameController.loadGameFromFile(chooser.getSelectedFile().getPath());
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Load Failed", JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 
@@ -104,8 +108,9 @@ private <T extends Component & UpdatableUIComponent> void registerComponent(T co
                 return;
             }
             boolean success = chessGameController.saveGameToFile(chooser.getSelectedFile().getPath());
-            // TODO
-            //            updateStatus(success ? "Game saved." : "Save failed.");
+            if (!success) {
+                JOptionPane.showMessageDialog(this, "Failed to save game.", "Save Failed", JOptionPane.ERROR_MESSAGE);
+            }
         });
         add(button);
     }

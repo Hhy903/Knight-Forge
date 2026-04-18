@@ -3,7 +3,8 @@ package com.knightforge.model;
 public enum GameMode {
     IDLE("Waiting for piece selection"),
     STAGING("Piece selected - choose destination"),
-    AWAITING_PROMOTION("Choose promotion piece");
+    AWAITING_PROMOTION("Choose promotion piece"),
+    GAME_OVER("Game over");
 
     private final String description;
 

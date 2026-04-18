@@ -8,5 +8,6 @@ public record GameState(
         ChessboardPosition selectedPosition,
         List<ChessboardPosition> legalMoves,
         ChessColor currentTurn,
-        GameMode mode
+        GameMode mode,
+        String statusMessage
 ){}
