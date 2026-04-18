@@ -1,14 +1,17 @@
 package com.knightforge.view;
 
 import com.knightforge.controller.ChessGameController;
-import com.knightforge.model.ChessColor;
-import com.knightforge.model.ChessGame;
 import com.knightforge.model.GameState;
 import com.knightforge.model.ObservableChessGame;
+import com.knightforge.view.ViewComponents.ChessboardComponents.ChessboardComponent;
+import com.knightforge.view.ViewComponents.StatusLabelComponent;
+import com.knightforge.view.ViewComponents.UpdatableUIComponent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChessGameView extends JFrame implements ChessGameObserver{
     private final int DEFAULT_WIDTH = 1000;
@@ -21,9 +24,8 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
 
     ObservableChessGame chessGameModel;
     ChessGameController chessGameController;
-    ChessboardView chessboard;
 
-    private JLabel statusLabel;
+    private List<UpdatableUIComponent> components = new ArrayList<>();
 
     public ChessGameView (ChessGameController chessGameController, ObservableChessGame chessGameModel){
         this.chessGameController = chessGameController;
@@ -36,10 +38,10 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close the game when the window is closed.
         setLayout(null);
 
-        chessGameModel.addObserver(this);
+        addComponents();
     }
 
-    public void createView(){
+    public void addComponents(){
         // Create Swing Components
         addChessboard();
         addLabel();
@@ -48,20 +50,20 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
         addSaveButton();
     }
 
+private <T extends Component & UpdatableUIComponent> void registerComponent(T component) {
+        components.add(component);
+        add(component); // Swing add, satisfied because T extends Component
+    }
+
     private void addChessboard() {
-        chessboard = new ChessboardView(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameController);
+        ChessboardComponent chessboard = new ChessboardComponent(DEFAULT_CHESSBOARD_SIZE, DEFAULT_CHESSBOARD_SIZE, chessGameController);
         chessboard.setLocation(DEFAULT_HEIGHT / 10, DEFAULT_HEIGHT / 10);
-        add(chessboard);
+        registerComponent(chessboard);
     }
 
     private void addLabel() {
-        statusLabel = new JLabel();
-        statusLabel.setLocation(DEFAULT_HEIGHT, DEFAULT_HEIGHT / 10);
-        statusLabel.setSize(220, 100);
-        statusLabel.setVerticalAlignment(SwingConstants.TOP);
-        statusLabel.setFont(new Font("Rockwell", Font.BOLD, 18));
-        add(statusLabel);
-        updateStatus("White to Move");
+        StatusLabelComponent statusLabel = new StatusLabelComponent(DEFAULT_HEIGHT);
+        registerComponent(statusLabel);
     }
 
     private void addUndoButton() {
@@ -102,7 +104,8 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
                 return;
             }
             boolean success = chessGameController.saveGameToFile(chooser.getSelectedFile().getPath());
-            updateStatus(success ? "Game saved." : "Save failed.");
+            // TODO
+            //            updateStatus(success ? "Game saved." : "Save failed.");
         });
         add(button);
     }
@@ -113,21 +116,11 @@ public class ChessGameView extends JFrame implements ChessGameObserver{
         return chooser;
     }
 
-    private void updateStatus(String whoseTurn) {
-        if (statusLabel == null) {
-            return;
-        }
-        statusLabel.setText("<html>" + (whoseTurn == null ? "White to move." : whoseTurn + " to move.") + "</html>");
-    }
-
-    public void createControls(){
-
-    }
-
     @Override
     public void updateGameState(GameState gameState) {
-        updateStatus(gameState.currentTurn().getName());
-        chessboard.updateGameState(gameState);
+        for (UpdatableUIComponent component : components) {
+            component.updateGameState(gameState);
+        }
     }
 
     public String getDesiredPromotion(String[] promotionOptions) {

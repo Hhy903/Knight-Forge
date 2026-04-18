@@ -1,17 +1,17 @@
 package com.knightforge.controller;
 
 
-import com.knightforge.view.ChessboardComponents.ChessComponent;
-import com.knightforge.view.ChessboardView;
+import com.knightforge.view.ViewComponents.ChessboardComponents.ChessSquareComponent;
+import com.knightforge.view.ViewComponents.ChessboardComponents.ChessboardComponent;
 
 public class ClickController {
-    private final ChessboardView chessboard;
+    private final ChessboardComponent chessboard;
 
-    public ClickController(ChessboardView chessboard) {
+    public ClickController(ChessboardComponent chessboard) {
         this.chessboard = chessboard;
     }
 
-    public void onClick(ChessComponent chessComponent) {
-        chessboard.handleSquareClick(chessComponent.getChessboardPoint());
+    public void onClick(ChessSquareComponent chessSquareComponent) {
+        chessboard.handleSquareClick(chessSquareComponent.getChessboardPoint());
     }
 }

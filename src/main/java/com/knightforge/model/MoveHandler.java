@@ -30,7 +30,7 @@ public class MoveHandler implements IMoveHandler{
     }
 
     private List<MoveNew> getLegalMoves(ChessboardPosition currentPosition, List<MoveNew> possiblyLegalMoves, ChessColor whoseTurn){
-        if (chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
+        if (chessboard.getPieceAtPosition(currentPosition) == null || chessboard.getPieceAtPosition(currentPosition).getColor() != whoseTurn) {
             return new ArrayList<>();
         }
 
