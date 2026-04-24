@@ -14,6 +14,47 @@ This project is intended to deliver a desktop chess application that:
 
 In practical terms, KnightForge is designed to help the team learn how to turn a well-defined board game into a maintainable software system. Chess is a strong fit for this purpose because it has fixed rules, clear piece responsibilities, rich interactions between objects, and natural opportunities for progressive extension.
 
+## Design Patterns
+
+### Pattern 1: Factory Pattern
+- Involved Parties:
+  - `model/ChessPieces/ChessPieceFactory`: Simple Factory
+  - `model/ChessPieces/ChessPiece`: Abstract ChessPiece class
+  - `model/ChessPieces/Pawn`,`model/ChessPieces/Knight`, ..., etc. 
+### Pattern 2: Composite Pattern
+- Involved Parties:
+  - `view/ChessGameView`: Root Composite HAS-A list of updatableComponents (Label and Chessboard)
+  - `view/ViewComponents/UpdatableUIComponent`: Interface with updateGameState method
+  - Label:
+    - `view/ViewComponents/StatusLabelComponent`: implements `UpdatableUIComponent`
+  - Chessboard:
+    - `view/ViewComponents/ChessboardComponents/Chessboard`: implements `UpdatableUIComponent` and contains a list of `ChessboardSquareComponent`
+    - `view/ViewComponents/ChessboardComponents/ChessboardSquareComponent`: implements `UpdatableUIComponent`
+- Additional Information:
+  - The composite pattern allows the ChessGameView to be the only observer of the ObservableChessGame. That way, when an update comes in, it will propagate down to all the updatable components.
+### Pattern 3: MVC Pattern
+- Key Involved Parties:
+  - `model/ChessGame`
+  - `view/ChessGameView`
+  - `controller/ChessGameController`
+### Pattern 4: Observer Pattern
+- Involved Parties:
+  - `view/ChessGameView` which implements `ChessGameObserver`
+  - `model/ChessGame` which implements `ObservableChessGame`
+  - `model/GameState` 
+- Additional Information:
+  - The ChessGame uses a push Observer pattern to supply observers with the current state of the game. NotifyObservers is called in the following situations
+    - Game Setup
+    - Promotion piece is selected and game state is updated
+    - Perform move
+    - Undo move
+    - Load game state
+### Pattern 5: Singleton Pattern
+- Key Involved Parties:
+  - `view/SkinManager`
+### Pattern 6: State Pattern
+- Key Involved Parties:
+  - `model/ChessGame`
 ## Development Goals
 
 The project is organized around several concrete goals:
@@ -77,6 +118,3 @@ After opening the project as a Gradle project, you can use the Gradle Wrapper co
 - `./gradlew.bat test` on Windows to run the test suite
 - `./gradlew.bat run` on Windows to launch the application
 - `./gradlew build` on macOS or Linux
-
-## For Midterm Review
-See docs/midterm-design.md
