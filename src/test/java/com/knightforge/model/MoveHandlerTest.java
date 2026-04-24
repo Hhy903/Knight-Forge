@@ -346,4 +346,230 @@ public class MoveHandlerTest {
         assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(3, 3).getColor());
         assertNull(loadedChessboard.getPieceAtPosition(2, 3));
     }
+
+    @Test
+    void testPromotionMoveRequiresExplicitPromotionChoice() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- bK -- -- --",
+                "wP -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- wK -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        ChessboardPosition pawnPosition = new ChessboardPosition(1, 0);
+        Move promotionMove = moveHandler.getValidMoves(ChessColor.WHITE, pawnPosition).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(0, 0)))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(promotionMove);
+        assertThrows(PromotionRequiredException.class, () -> moveHandler.executeMove(promotionMove));
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(1, 0).getType());
+        assertNull(loadedChessboard.getPieceAtPosition(0, 0));
+    }
+
+    @Test
+    void testPromotionCreatesChosenPieceAndUndoRestoresPawn() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- bK -- -- --",
+                "-- -- -- wP -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- wK -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        ChessboardPosition pawnPosition = new ChessboardPosition(1, 3);
+        Move promotionMove = moveHandler.getValidMoves(ChessColor.WHITE, pawnPosition).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(0, 3)))
+                .findFirst()
+                .orElseThrow();
+
+        moveHandler.executePromotionMove(promotionMove, PieceType.KNIGHT);
+
+        assertNull(loadedChessboard.getPieceAtPosition(1, 3));
+        assertNotNull(loadedChessboard.getPieceAtPosition(0, 3));
+        assertEquals(PieceType.KNIGHT, loadedChessboard.getPieceAtPosition(0, 3).getType());
+        assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(0, 3).getColor());
+
+        assertTrue(moveHandler.undoLastMove());
+        assertNotNull(loadedChessboard.getPieceAtPosition(1, 3));
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(1, 3).getType());
+        assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(1, 3).getColor());
+        assertNull(loadedChessboard.getPieceAtPosition(0, 3));
+    }
+
+    @Test
+    void testPromotionCaptureRestoresCapturedPieceOnUndo() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- bR -- -- bK -- -- --",
+                "wP -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- wK -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        ChessboardPosition pawnPosition = new ChessboardPosition(1, 0);
+        Move promotionCapture = moveHandler.getValidMoves(ChessColor.WHITE, pawnPosition).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(0, 1)))
+                .findFirst()
+                .orElseThrow();
+
+        moveHandler.executePromotionMove(promotionCapture, PieceType.QUEEN);
+
+        assertNull(loadedChessboard.getPieceAtPosition(1, 0));
+        assertNotNull(loadedChessboard.getPieceAtPosition(0, 1));
+        assertEquals(PieceType.QUEEN, loadedChessboard.getPieceAtPosition(0, 1).getType());
+        assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(0, 1).getColor());
+
+        assertTrue(moveHandler.undoLastMove());
+        assertNotNull(loadedChessboard.getPieceAtPosition(1, 0));
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(1, 0).getType());
+        assertNotNull(loadedChessboard.getPieceAtPosition(0, 1));
+        assertEquals(PieceType.ROOK, loadedChessboard.getPieceAtPosition(0, 1).getType());
+        assertEquals(ChessColor.BLACK, loadedChessboard.getPieceAtPosition(0, 1).getColor());
+    }
+
+    @Test
+    void testEnPassantExpiresIfNotTakenImmediately() throws PromotionRequiredException {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- bK -- -- --",
+                "-- -- -- bP -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- wP -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- wN --",
+                "-- -- -- -- wK -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        Move blackPawnTwoSquares = moveHandler.getValidMoves(ChessColor.BLACK, new ChessboardPosition(1, 3)).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(3, 3)))
+                .findFirst()
+                .orElseThrow();
+        moveHandler.executeMove(blackPawnTwoSquares);
+
+        Move whiteKnightMove = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(6, 6)).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(4, 5)))
+                .findFirst()
+                .orElseThrow();
+        moveHandler.executeMove(whiteKnightMove);
+
+        List<Move> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(3, 2));
+        Move expiredEnPassant = whitePawnMoves.stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(2, 3)))
+                .findFirst()
+                .orElse(null);
+
+        assertNull(expiredEnPassant);
+    }
+
+    @Test
+    void testCannotCastleAfterKingMovedAwayAndBack() throws PromotionRequiredException {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- bK -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "wR -- -- -- wK -- -- wR"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+
+        Move moveKingAway = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(7, 4)).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(6, 4)))
+                .findFirst()
+                .orElseThrow();
+        moveHandler.executeMove(moveKingAway);
+
+        Move moveKingBack = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(6, 4)).stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(7, 4)))
+                .findFirst()
+                .orElseThrow();
+        moveHandler.executeMove(moveKingBack);
+
+        List<Move> kingMoves = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(7, 4));
+        Move castleKingside = kingMoves.stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(7, 6)))
+                .findFirst()
+                .orElse(null);
+        Move castleQueenside = kingMoves.stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(7, 2)))
+                .findFirst()
+                .orElse(null);
+
+        assertNull(castleKingside);
+        assertNull(castleQueenside);
+    }
+
+    @Test
+    void testLoadMetadataDisablesCastlingRights() {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "bR -- -- -- bK -- -- bR",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "wR -- -- -- wK -- -- wR"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        moveHandler.loadMetadata(ChessColor.WHITE, "-", null);
+
+        List<Move> whiteKingMoves = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(7, 4));
+        List<Move> blackKingMoves = moveHandler.getValidMoves(ChessColor.BLACK, new ChessboardPosition(0, 4));
+
+        assertNull(whiteKingMoves.stream().filter(move -> move.isCastleMove()).findFirst().orElse(null));
+        assertNull(blackKingMoves.stream().filter(move -> move.isCastleMove()).findFirst().orElse(null));
+        assertEquals("-", moveHandler.getCastleRightsToken());
+    }
+
+    @Test
+    void testLoadMetadataRestoresEnPassantTargetForImmediateCaptureOnly() throws PromotionRequiredException {
+        Chessboard loadedChessboard = new Chessboard();
+        loadedChessboard.loadFromLines(List.of(
+                "-- -- -- -- bK -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- wP bP -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- -- -- -- --",
+                "-- -- -- -- wK -- -- --"));
+        MoveHandler moveHandler = new MoveHandler(loadedChessboard);
+        moveHandler.loadMetadata(ChessColor.WHITE, "-", new ChessboardPosition(2, 3));
+
+        List<Move> whitePawnMoves = moveHandler.getValidMoves(ChessColor.WHITE, new ChessboardPosition(3, 2));
+        Move enPassantCapture = whitePawnMoves.stream()
+                .filter(move -> move.getTo().equals(new ChessboardPosition(2, 3)))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(enPassantCapture);
+        assertEquals(new ChessboardPosition(2, 3), moveHandler.getEnPassantTarget());
+
+        moveHandler.executeMove(enPassantCapture);
+
+        assertNull(moveHandler.getEnPassantTarget());
+        assertNull(loadedChessboard.getPieceAtPosition(3, 3));
+        assertNotNull(loadedChessboard.getPieceAtPosition(2, 3));
+        assertEquals(PieceType.PAWN, loadedChessboard.getPieceAtPosition(2, 3).getType());
+        assertEquals(ChessColor.WHITE, loadedChessboard.getPieceAtPosition(2, 3).getColor());
+    }
 }
