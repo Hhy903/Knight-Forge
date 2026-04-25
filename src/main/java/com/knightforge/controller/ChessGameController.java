@@ -66,7 +66,6 @@ public class ChessGameController {
         }
     }
 
-    // TODO
     public void loadGameFromFile(String filepath) {
         try {
             List<String> lines = Files.readAllLines(Path.of(filepath));
@@ -87,7 +86,6 @@ public class ChessGameController {
         }
     }
 
-    // TODO
     public boolean saveGameToFile(String filepath) {
         try {
             Files.write(Path.of(filepath), chessGameModel.serializeGameState());
